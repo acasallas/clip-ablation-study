@@ -1,3 +1,5 @@
+import math
+
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
@@ -22,7 +24,7 @@ class TextRNN(nn.Module):
         )
 
         # Project to shared CLIP space (512 by default)
-        proj_in = hidden_size * 2
+        proj_in = text_feat_dim * 2
         self.pre_ln = nn.LayerNorm(proj_in)
         self.proj = nn.Linear(proj_in, text_feat_dim)
 

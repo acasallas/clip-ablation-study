@@ -1,12 +1,20 @@
 import datetime
+import math
 
+from datasets import load_dataset
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import CosineAnnealingLR
 import torch
+from torch.utils.data import DataLoader
 from torchinfo import summary
 import torchvision
-import torchvision.transforms as transforms
+from torchvision import transforms as T
+from torchvision.transforms import InterpolationMode
+from tokenizers import Tokenizer
+from transformers import PreTrainedTokenizerFast
 import wandb
 
 import resnet34embedder
@@ -20,6 +28,8 @@ elif torch.backends.mps.is_available() and torch.backends.mps.is_built():
 else:
     device = torch.device("cpu")
 
+print(f"Will use device {device}.")
+
 
 # TODO: torch.compile --> that is REALLY important, it could double your training efficiency.
 # TODO: brief code review by myself
@@ -32,8 +42,6 @@ else:
 
 
 # TODO: profile and seriously consider pre-tokenizing dataset.
-# are we sure about to_pil_rgb
-# I think the field is actually jpg
 # think about how you can time the file throughout.
 # TODO: may want to ask about sanity checks (like what you were being recommended to do with tokenization).
 # TODO: strongly consider doing a hyperparameter search for like 1000 steps or something.
@@ -52,10 +60,11 @@ def to_pil_rgb(x):
         im = x
     else:
         im = Image.fromarray(x)
-    return im.convert("RGB")
+    return im if im.mode == "RGB" else im.convert("RGB")
 
 train_transform = T.Compose([
     T.Lambda(to_pil_rgb),
+    # TODO: you've been told you should resize and randomcrop
     T.Resize(IMG_SIZE, interpolation=InterpolationMode.BICUBIC),     # shortest side -> 128
     T.RandomCrop(IMG_SIZE),                                          # 128x128 crop
     T.RandomHorizontalFlip(),
@@ -260,8 +269,8 @@ def load_checkpoint(path, model, optimizer=None, scheduler=None, map_location="c
 
 IMG_COL = "jpg"
 TXT_COL = "txt"
+MAX_LEN=160
 
-torch.set_float32_matmul_precision('high')
 
 def make_collate(tokenizer, transform, max_len=MAX_LEN):
     def collate(examples):
@@ -283,19 +292,25 @@ def make_collate(tokenizer, transform, max_len=MAX_LEN):
 
 
 def print_clip_model_summary(model, batch_size):
+    model.eval()  # summaries usually don't need training-time randomness
+    device = next(model.parameters()).device
+
     # Example batch size
     B, L = batch_size, 160  
 
-    x_img = torch.randn(B, 3, 128, 128)                     # float32 image
-    x_text = torch.randint(0, 1000, (B, L), dtype=torch.long) # int64 token IDs
-    lengths = torch.randint(1, L+1, (B,), dtype=torch.long)   # int64 sequence lengths
+    x_img = torch.randn(B, 3, 128, 128, device=device, dtype=torch.float32)  # float32 image
+    x_text = torch.randint(0, 1000, (B, L), device=device, dtype=torch.long) # int64 token IDs
+    lengths = torch.randint(1, L+1, (B,), device=device, dtype=torch.long)   # int64 sequence lengths
 
-    summary(model, input_data=(x_img, x_text, lengths))
+    summary(model, input_data=(x_img, x_text, lengths), dtypes=[torch.float32, torch.long, torch.long],)
+
+
 
 def train_clip(resume_path=None):
     """
     resume_path - set only if we need to continue from a checkpoint.
     """
+    torch.set_float32_matmul_precision('high')
 
     config = {
         "img_feat_dim": 512,
@@ -314,7 +329,7 @@ def train_clip(resume_path=None):
     print_every_steps = 100
     dataloader_num_workers = 8 # tune this to the PC CPU.
 
-    with wandb.init(mode="disabled", config=config,project="clip-custom",entity="alancasallas-self") as run:
+    with wandb.init(mode="disabled", config=config,project="clip-custom-experiment",entity="alancasallas-self") as run:
         dataset = load_dataset("pixparse/cc3m-wds")
         train_dataset = dataset["train"]
         val_dataset = dataset["validation"]
@@ -345,9 +360,13 @@ def train_clip(resume_path=None):
             best_val = extra.get("best_val", best_val)
             print(f"Resumed from {resume_path} at epoch={start_epoch}, global_step={global_step}")
 
+        model = CLIP(tok.vocab_size, wandb.config.img_feat_dim, wandb.config.text_feat_dim, wandb.config.shared_embedding_dim)
+        model.to(device)
+        print_clip_model_summary(model, wandb.config.clip_batch_size)
+
         # Warmup + cosine (to ~1e-6). ramp up over 2k steps:
         warmup_steps = 2000
-        total_steps = len(training_loader) * num_epochs
+        total_steps = len(train_loader) * num_epochs
 
         # the famous cosine annealing with rampup.
         def lr_lambda(step):
@@ -358,13 +377,8 @@ def train_clip(resume_path=None):
             min_lr = 1e-6 / base_lr
             return min_lr + 0.5 * (1 - min_lr) * (1 + math.cos(math.pi * t))
 
-        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
-
-        model = CLIP(tok.vocab_size, wandb.config.img_feat_dim, wandb.config.text_feat_dim, wandb.config.shared_embedding_dim)
-        model.to(device)
-        print_clip_model_summary(model, wandb.config.clip_batch_size)
-
         optimizer = AdamW(param_groups(model, wd=wandb.config.weight_decay), lr=wandb.config.learning_rate, betas=(0.9, 0.98))
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
         # Set up XBM queues.
         q_img = RingQueue(dim=wandb.config.shared_embedding_dim, capacity=wandb.config.xbm_size, device=device, dtype=torch.float16)
