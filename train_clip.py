@@ -7,6 +7,8 @@ import torchvision
 import torchvision.transforms as transforms
 import wandb
 
+import resnet34embedder
+
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -16,131 +18,145 @@ else:
     device = torch.device("cpu")
 
 
+class RingQueue:
+    """Fixed-size ring buffer for L2-normalized embeddings. Used to implement XBM queues."""
+    def __init__(self, dim: int, capacity: int, device: torch.device, dtype=torch.float16):
+        self.dim = dim
+        self.capacity = capacity
+        self.device = device
+        self.dtype = dtype
+        self.buf = torch.zeros(capacity, dim, device=device, dtype=dtype)
+        self.size = 0
+        self.ptr = 0
+
+    @torch.no_grad()
+    def enqueue(self, x: torch.Tensor):
+        # x: (B, dim), assumed already L2-normalized
+        b = x.shape[0]
+        # if batch is larger than capacity, entire queue is filled up by most recent items in batch
+        if b >= self.capacity:
+            self.buf.copy_(x[-self.capacity:].to(self.dtype))
+            self.size = self.capacity
+            self.ptr = 0
+            return
+        # otherwise we fill up the queue in a ring fashion.
+        end = self.ptr + b
+        if end <= self.capacity:
+            self.buf[self.ptr:end].copy_(x.to(self.dtype))
+        else:
+            first = self.capacity - self.ptr
+            self.buf[self.ptr:].copy_(x[:first].to(self.dtype))
+            self.buf[:end - self.capacity].copy_(x[first:].to(self.dtype))
+        self.ptr = (self.ptr + b) % self.capacity
+        self.size = min(self.size + b, self.capacity)
+
+    def get(self) -> torch.Tensor:
+        # Return the queue content in a contiguous (size, dim) tensor view
+        # note the time order of the embeddings may be discontiguous, but for our purposes that is fine.
+        return self.buf[:self.size]
 
 
-
-# TODO: hey can you copy over final RNN and Alexnet from other file?
-# also, can you look up datasets, keeping in mind max batch size for 4090? give yourself some room.
-# assume you'll use tf32 and all that jazz.
-
-
-
-
-
-
-# TODO: gonna need to tokenize, let's use huggingface.
-# we'll have to download shakespeare and tokenize it.
-
-
-# gotta change outputs.
-
-
-# you should tokenize using something (sentencepice or tokenizer)
-# step 1: train briefly on images, see that loss is going down.
-# step 2: train briefly on text (maybe a sentiment analyzer?), see that loss is going down.
-
-# TODO: strongly consider makin
-
-class RNN(nn.Module):
-    def __init__(self, vocab_size, embed_dim):
+class TextRNN(nn.Module):
+    def __init__(
+        self,
+        vocab_size: int,
+        embed_dim: int = 256,
+        hidden_size: int = 512,
+        out_dim: int = 512,
+        dropout: float = 0.1,
+        pad_id: int = 0,
+    ):
         super().__init__()
-        # then do CLIP
-        self.embedding = nn.Embedding(vocab_size, embed_dim,padding_idx=0)
-        self.gru = nn.GRU(embed_dim, 128, batch_first=True)
-        self.fc = nn.Linear(128,1) # takes last output and sigmoids it
-        self.sigmoid = nn.Sigmoid()
+        self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=pad_id)
+        self.gru = nn.GRU(
+            input_size=embed_dim,
+            hidden_size=hidden_size,
+            num_layers=2,
+            batch_first=True,
+            bidirectional=True,
+            dropout=dropout
+        )
 
-    def forward(self, x, lengths):
-        embedded = self.embedding(x)
-        packed = pack_padded_sequence(embedded, lengths, batch_first=True, enforce_sorted=False)
-        _, h_n = self.gru(packed) # we use the last hidden state here, but could've used output as well
-        h_n = h_n.squeeze(0) # get rid of the time dimension
-        out = self.fc(h_n)
-        #return self.sigmoid(out) # let's not output prob, let's output logits
+        # Project to shared CLIP space (512 by default)
+        proj_in = hidden_size * 2
+        self.pre_ln = nn.LayerNorm(proj_in)
+        self.proj = nn.Linear(proj_in, out_dim)
+
+        self._init_weights()
+
+    def _init_weights(self):
+        # Embedding
+        nn.init.normal_(self.embedding.weight, mean=0.0, std=0.02)
+        # GRU params: Kaiming for input-hidden, orthogonal for hidden-hidden
+        for name, param in self.gru.named_parameters():
+            if "weight_ih" in name:
+                nn.init.kaiming_uniform_(param, a=math.sqrt(5))
+            elif "weight_hh" in name:
+                nn.init.orthogonal_(param)
+            elif "bias" in name:
+                nn.init.zeros_(param)
+        # Projection
+        nn.init.trunc_normal_(self.proj.weight, std=0.02)
+        if self.proj.bias is not None:
+            nn.init.zeros_(self.proj.bias)
+
+    def forward(self, tokens: torch.Tensor, lengths: torch.Tensor):
+        """
+        tokens:  (B, L) int64
+        lengths: (B,)    int64, unpadded lengths
+        returns: (B, out_dim) [optionally L2-normalized]
+        """
+        # lengths must be CPU ints for pack
+        x = self.embedding(tokens)  # (B, L, E)
+
+        packed = pack_padded_sequence(x, lengths.to("cpu"), batch_first=True, enforce_sorted=False)
+        _, h_n = self.gru(packed)   # h_n: (num_layers*num_directions, B, H)
+
+        # take the last layer’s hidden state
+        # concat forward and backward of last layer
+        h_last_fwd = h_n[-2]  # (B, H)
+        h_last_bwd = h_n[-1]  # (B, H)
+        h = torch.cat([h_last_fwd, h_last_bwd], dim=-1)  # (B, 2H)
+
+        h = self.pre_ln(h)
+        out = self.proj(h)  # (B, out_dim)
+        if self.l2_normalize:
+            out = F.normalize(out, p=2, dim=-1)
         return out
 
 
-class AlexNet(nn.Module):
-    def __init__(self, num_classes=1000):
-        super().__init__()
-        
-        self.conv_layers = nn.Sequential(
-            # Conv1 (valid padding)
-            nn.Conv2d(3, 96, kernel_size=11, stride=4, padding=0),
-            nn.BatchNorm2d(96),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),  # valid
-            
-            # Conv2 (same padding)
-            nn.Conv2d(96, 256, kernel_size=5, stride=1, padding=2),
-            nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),  # valid
-            
-            # Conv3 (same)
-            nn.Conv2d(256, 384, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(384),
-            nn.ReLU(inplace=True),
-            
-            # Conv4 (same)
-            nn.Conv2d(384, 384, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(384),
-            nn.ReLU(inplace=True),
-            
-            # Conv5 (same)
-            nn.Conv2d(384, 256, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2)  # valid
-        )
-
-        # Output after conv layers is: [batch_size, 256, 5, 5] → flatten to 6400
-        self.classifier = nn.Sequential(
-            nn.Linear(256 * 5 * 5, 4096),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-            nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
-            nn.Linear(4096, num_classes)  # logits
-        )
-
-    def forward(self, x):
-        x = self.conv_layers(x)
-        x = x.view(x.size(0), -1)  # flatten
-        x = self.classifier(x)
-        return x  # logits (no softmax)
-
-# TODO: remove the classifier from AlexNET (or most of it I guess.)
-
-
-# TODO: put hyperparameters for text_dim, img_dim, shared_dim.
 class CLIP(nn.Module):
     def __init__(self, img_dim, text_dim, shared_dim):
         super().__init__()
-        self.text_encoder = RNN(text_dim)
-        self.image_encoder = AlexNet(img_dim)
-        self.text_projector = nn.Linear(text_dim,shared_dim)
-        self.image_projector = nn.Linear(img_dim,shared_dim)
-        self.logit_scale = nn.Parameter(torch.tensor(math.log(1/0.07)))
 
-        # initialize projectors for stability #TODO: look into this, is it a good idea?
-        nn.init.normal_(self.text_projector.weight,  std=0.02)
-        nn.init.normal_(self.image_projector.weight, std=0.02)
-        nn.init.zeros_(self.text_projector.bias)
-        nn.init.zeros_(self.image_projector.bias)
+        self.text_encoder = RNN(text_dim)
+        self.image_encoder = resnet34embedder.ResNet34Embedder(img_dim)
+
+        self.img_ln  = nn.LayerNorm(img_dim)
+        self.txt_ln  = nn.LayerNorm(text_dim)
+        self.image_projector = nn.Linear(img_dim, shared_dim, bias=False)
+        self.text_projector  = nn.Linear(text_dim, shared_dim, bias=False)
+        self.logit_scale = nn.Parameter(torch.tensor(math.log(1/0.07), dtype=torch.float32))
+        # TODO: std 0.02 was recommended, but can we confirm that's good for the input dim size?
+        nn.init.trunc_normal_(self.image_projector.weight, std=0.02)
+        nn.init.trunc_normal_(self.text_projector.weight,  std=0.02)
+
+    def encode(self, x_img, x_text):
+        # returns L2-normalized embeddings
+        img = self.image_projector(self.img_ln(self.image_encoder(x_img)))
+        txt = self.text_projector(self.txt_ln(self.text_encoder(x_text)))
+        img = F.normalize(img, p=2, dim=-1)
+        txt = F.normalize(txt, p=2, dim=-1)
+        return img, txt
 
     def forward(self, x_img, x_text):
-        encoded_text = self.text_encoder(x_text) # B, text_dim
-        encoded_image = self.image_encoder(x_img) # B, img_dim
-        projected_text = self.text_projector(encoded_text) # B , shared_dim
-        projected_image = self.image_projector(encoded_image) # B, shared_dim
-        norm_text = F.normalize(projected_text,p=2.0,dim=-1) # B , shared_dim
-        norm_image = F.normalize(projected_image,p=2.0,dim=-1) # B, shared_dim
-        logit_scale = torch.clamp(self.logit_scale.exp(), max=math.log(100))
-        logits_per_text = (norm_text @ norm_image.transpose(0,1))*logit_scale # B,B
-        logits_per_image = logits_per_text.t()
-        return norm_text, norm_image, logits_per_text, logits_per_image
+        # keep forward as a convenience for non-queue eval
+        img, txt = self.encode(x_img, x_text)
+        scale = self.logit_scale.exp().clamp(max=100.0)
+        # batch-only logits for quick eval
+        logits_per_image = (img.float() @ txt.float().t()) * scale
+        logits_per_text  = logits_per_image.t()
+        return txt, img, logits_per_text, logits_per_image, scale
 
 def clip_loss(logits_per_text, logits_per_image):
     B = logits_per_text.size(0)
@@ -150,34 +166,89 @@ def clip_loss(logits_per_text, logits_per_image):
     return 0.5 * (loss_t + loss_i)
 
 
+def compute_logits_with_queue(img_emb, txt_emb, q_img, q_txt, scale, chunk=8192):
+    """
+    img_emb, txt_emb: (B, D) L2-normalized
+    q_img, q_txt: (N, D) L2-normalized (may be empty)
+    scale: scalar tensor
+    Returns logits_per_text, logits_per_image using [batch + queue] negatives.
+    """
+    B = img_emb.size(0)
+    device = img_emb.device
+
+    # Concatenate current batch + queue
+    all_txt = txt_emb if q_txt.size(0) == 0 else torch.cat([txt_emb, q_txt.to(dtype=txt_emb.dtype)], dim=0)
+    all_img = img_emb if q_img.size(0) == 0 else torch.cat([img_emb, q_img.to(dtype=img_emb.dtype)], dim=0)
+
+    # Compute in fp32 for numerical stability # TODO: think about whether this is needed.
+    img32 = img_emb.float()
+    txt32 = txt_emb.float()
+    all_txt32 = all_txt.float()
+    all_img32 = all_img.float()
+
+    # we perform a chunked matrix multiplication. Why? Because it uses less VRAM.
+    def matmul_chunked(A, Bt, chunk):
+        # A: (B, D), Bt: (D, N) -> (B, N)
+        N = Bt.size(1)
+        out = torch.empty(A.size(0), N, device=A.device, dtype=torch.float32)
+        for s in range(0, N, chunk):
+            e = min(s + chunk, N)
+            out[:, s:e] = A @ Bt[:, s:e]
+        return out
+
+    logits_per_image = matmul_chunked(img32, all_txt32.t(), chunk) * scale
+    logits_per_text  = matmul_chunked(txt32, all_img32.t(), chunk) * scale
+
+    return logits_per_text, logits_per_image
+
+
 def train_clip():
     model = CLIP() # TODO: put parameters in.
     model.to(device)
 
+    shared_dim = 512  # must match your projector dim
+    K = 16384
+    queue_chunk_size = 8192
+    # Set up XBM queues.
+    q_img = RingQueue(dim=shared_dim, capacity=K, device=device, dtype=torch.float16)
+    q_txt = RingQueue(dim=shared_dim, capacity=K, device=device, dtype=torch.float16)
+    ce = nn.CrossEntropyLoss()
+
     for epoch in range(num_epochs):
-        metrics = {"epoch": epoch}
-        print(f"EPOCH {epoch}")
-        train_losses = 0
-        train_total = 0
+        running_loss, count = 0.0, 0
+        for batch in training_loader:
+            optimizer.zero_grad(set_to_none=True)
 
-        model.train()
-        for i,data in enumerate(training_loader):
-            images, texts = data
-            # haven't made data yet, but when we do we'll guarantee images and text line up.
-            inputs = inputs.to(device)
-            texts = texts.to(device)
+            images, token_ids, lengths = batch
+            lengths = lengths.to(device, non_blocking=True)
 
-            optimizer.zero_grad()
+            images    = images.to(device, non_blocking=True, memory_format=torch.channels_last)
+            token_ids = token_ids.to(device, non_blocking=True)
 
-            _, _, logits_t, logits_i = model(images, texts)
-            loss = clip_loss(logits_t, logits_i)
+            with torch.cuda.amp.autocast(dtype=torch.bfloat16):
+                img_emb, txt_emb = model.encode(images, token_ids)  # L2-normalized (B, D)
+                # temperature param stays fp32 in the module; read the scale here
+                scale = model.logit_scale.exp().clamp(max=100.0)
 
-            train_losses += loss.item()*inputs.size(0)
-            train_total += inputs.size(0)
+            logits_t, logits_i = compute_logits_with_queue(
+                img_emb, txt_emb, q_img.get(), q_txt.get(), scale, chunk=queue_chunk_size
+            )
+
+            B = images.size(0)
+            target = torch.arange(B, device=device)
+            loss = 0.5 * (ce(logits_i, target) + ce(logits_t, target))
+
             loss.backward()
             optimizer.step()
-        print(f"train loss {train_losses/train_total}")
-        metrics.update({"train_loss": train_losses/train_total})
+
+            # Update queues (store as fp16 to save VRAM; inputs are already unit-norm)
+            q_img.enqueue(img_emb.detach())
+            q_txt.enqueue(txt_emb.detach())
+
+            running_loss += loss.item() * B
+            count += B
+
+        print(f"epoch {epoch}: train_loss={running_loss / max(1, count):.4f}")
 
 
         # remember model.train() and model.eval()!
@@ -186,6 +257,7 @@ def train_clip():
         val_correct = 0
         val_total = 0
 
+        # TODO: update the eval for CLIP! Might have to be every few samples because might take too long to get around one epoch!
         with torch.no_grad():
             for i,data in enumerate(validation_loader):
                 inputs, labels = data
