@@ -1,8 +1,10 @@
+import datetime
+
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
+from torchinfo import summary
 import torchvision
 import torchvision.transforms as transforms
 import wandb
@@ -18,43 +20,73 @@ elif torch.backends.mps.is_available() and torch.backends.mps.is_built():
 else:
     device = torch.device("cpu")
 
-# TODO: bf6
-# TODO: torch.compile
-# TODO: tf32
+
+# TODO: torch.compile --> that is REALLY important, it could double your training efficiency.
+# TODO: brief code review by myself
+# TODO: on PC try running first parts to make sure you got all the data loading stuff done
+# TODO: also, can you print parameter count of model?
+# TODO: alan, you need to search to see what batch size is best for you.
+# TODO: then have an LLM review code
+# TODO: should you train a batch to see loss go down?
 
 
-# TODO: let's move tokenizer
+
+# TODO: profile and seriously consider pre-tokenizing dataset.
+# are we sure about to_pil_rgb
+# I think the field is actually jpg
+# think about how you can time the file throughout.
+# TODO: may want to ask about sanity checks (like what you were being recommended to do with tokenization).
+# TODO: strongly consider doing a hyperparameter search for like 1000 steps or something.
+# TODO: look into some easy low-risk things to avoid bottlenecks are (like nonblocking=True, etc)
+
+
+IMG_SIZE = 128 # clipping to 128 to better fit in a 4090 GPU
+# We use the numbers from the CLIP dataset, should be close enough for BN to do its work.
+# May want to review this if we struggle during training.
+MEAN =[0.48145466, 0.4578275, 0.40821073]
+STD =[0.26862954, 0.26130258, 0.27577711]
+
+
+def to_pil_rgb(x):
+    if isinstance(x, Image.Image):
+        im = x
+    else:
+        im = Image.fromarray(x)
+    return im.convert("RGB")
+
+train_transform = T.Compose([
+    T.Lambda(to_pil_rgb),
+    T.Resize(IMG_SIZE, interpolation=InterpolationMode.BICUBIC),     # shortest side -> 128
+    T.RandomCrop(IMG_SIZE),                                          # 128x128 crop
+    T.RandomHorizontalFlip(),
+    T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.05), # little color jitter, why not
+    T.ToTensor(),
+    T.Normalize(MEAN, STD),                                          # [-1, 1]
+])
+
+val_transform = T.Compose([
+    T.Lambda(to_pil_rgb),
+    T.Resize(IMG_SIZE, interpolation=InterpolationMode.BICUBIC),
+    T.CenterCrop(IMG_SIZE),
+    T.ToTensor(),
+    T.Normalize(MEAN, STD),
+])
+
+
 def load_tokenizer():
-    tokenizer_json = "clip_bpe_bytelevel/tokenizer.json"
+    # reload your trained tokenizer
+    tok = Tokenizer.from_file("clip_bpe/tokenizer.json")
 
-    return PreTrainedTokenizerFast(
-        tokenizer_file=tokenizer_json,
+    # wrap it into a Transformers-compatible object
+    fast = PreTrainedTokenizerFast(
+        tokenizer_object=tok,
         unk_token="[UNK]",
-        eos_token="[EOS]"
+        pad_token="[PAD]",
+        eos_token="[EOS]",
     )
-
-# TODO: change this so it still includs images
-def load_tokenized_clip_dataset(clip_dataset, tokenizer):
-    max_len = 160
-
-    def tokenize_fn(batch):
-        tokenized = tokenizer(
-            batch["text"],
-            truncation=True,
-            padding="max_length",
-            max_length=max_len
-        )
-        # compute lengths from attention mask
-        lengths = [int(sum(mask)) for mask in tokenized["attention_mask"]]
-        tokenized["lengths"] = lengths
-        # remove attention_mask if you don't need it
-        del tokenized["attention_mask"]
-        return tokenized
-
-    tokenized = clip_dataset.map(tokenize_fn, batched=True, remove_columns=["text"])
-    # Now dataset has: input_ids, lengths, label
-    tokenized.set_format(type="torch", columns=["input_ids", "lengths"])
-    return tokenized
+    fast.model_max_length = MAX_LEN
+    fast.padding_side = "right"
+    return fast
 
 
 class RingQueue:
@@ -95,46 +127,40 @@ class RingQueue:
         return self.buf[:self.size]
 
 
-
 class CLIP(nn.Module):
-    def __init__(self, img_dim, text_dim, shared_dim):
+    def __init__(self, vocab_size, img_feat_dim, text_feat_dim, shared_dim):
         super().__init__()
 
-        self.text_encoder = textembedder.TextRNN(text_dim)
-        self.image_encoder = resnet34embedder.ResNet34Embedder(img_dim)
+        self.text_encoder = textembedder.TextRNN(vocab_size=vocab_size, text_feat_dim=text_feat_dim,dropout=0.1,pad_id=0)
+        self.image_encoder = resnet34embedder.ResNet34Embedder(img_feat_dim)
 
-        self.img_ln  = nn.LayerNorm(img_dim)
-        self.txt_ln  = nn.LayerNorm(text_dim)
-        self.image_projector = nn.Linear(img_dim, shared_dim, bias=False)
-        self.text_projector  = nn.Linear(text_dim, shared_dim, bias=False)
+        self.img_ln  = nn.LayerNorm(img_feat_dim)
+        self.txt_ln  = nn.LayerNorm(text_feat_dim)
+        self.image_projector = nn.Linear(img_feat_dim, shared_dim, bias=False)
+        self.text_projector  = nn.Linear(text_feat_dim, shared_dim, bias=False)
         self.logit_scale = nn.Parameter(torch.tensor(math.log(1/0.07), dtype=torch.float32))
         # TODO: std 0.02 was recommended, but can we confirm that's good for the input dim size?
         nn.init.trunc_normal_(self.image_projector.weight, std=0.02)
         nn.init.trunc_normal_(self.text_projector.weight,  std=0.02)
 
-    def encode(self, x_img, x_text):
+    def encode(self, x_img, x_text, lengths):
         # returns L2-normalized embeddings
+        # Note on image encoder: Input expected: (B, 3, 128, 128), that is channels is dimension 1. Output: B, img_feat_dim
         img = self.image_projector(self.img_ln(self.image_encoder(x_img)))
-        txt = self.text_projector(self.txt_ln(self.text_encoder(x_text)))
+        # Note on text encoder:  Input expected: tokens (B,L), lengths (B). Output: B, text_feat_dim
+        txt = self.text_projector(self.txt_ln(self.text_encoder(x_text, lengths)))
         img = F.normalize(img, p=2, dim=-1)
         txt = F.normalize(txt, p=2, dim=-1)
         return img, txt
 
-    def forward(self, x_img, x_text):
+    def forward(self, x_img, x_text, lengths):
         # keep forward as a convenience for non-queue eval
-        img, txt = self.encode(x_img, x_text)
+        img, txt = self.encode(x_img, x_text, lengths)
         scale = self.logit_scale.exp().clamp(max=100.0)
         # batch-only logits for quick eval
         logits_per_image = (img.float() @ txt.float().t()) * scale
         logits_per_text  = logits_per_image.t()
         return txt, img, logits_per_text, logits_per_image, scale
-
-def clip_loss(logits_per_text, logits_per_image):
-    B = logits_per_text.size(0)
-    labels = torch.arange(B, device=logits_per_text.device)
-    loss_t = F.cross_entropy(logits_per_text,  labels)
-    loss_i = F.cross_entropy(logits_per_image, labels)
-    return 0.5 * (loss_t + loss_i)
 
 
 def compute_logits_with_queue(img_emb, txt_emb, q_img, q_txt, scale):
@@ -151,7 +177,7 @@ def compute_logits_with_queue(img_emb, txt_emb, q_img, q_txt, scale):
     all_txt = txt_emb if q_txt.size(0) == 0 else torch.cat([txt_emb, q_txt.to(dtype=txt_emb.dtype)], dim=0)
     all_img = img_emb if q_img.size(0) == 0 else torch.cat([img_emb, q_img.to(dtype=img_emb.dtype)], dim=0)
 
-    # Compute in fp32 for numerical stability # TODO: think about whether this is needed.
+    # Compute in fp32 for numerical stability # TODO: think about whether this is needed given that we make the call to high_precision.
     img32 = img_emb.float()
     txt32 = txt_emb.float()
     all_txt32 = all_txt.float()
@@ -161,6 +187,7 @@ def compute_logits_with_queue(img_emb, txt_emb, q_img, q_txt, scale):
     logits_per_text = txt32 @ all_img32.t() * scale
 
     # we perform a chunked matrix multiplication. Why? Because it uses less VRAM.
+    # This is now commented out until I decide it's necessary.
     #def matmul_chunked(A, Bt, chunk):
     #    # A: (B, D), Bt: (D, N) -> (B, N)
     #    N = Bt.size(1)
@@ -176,33 +203,178 @@ def compute_logits_with_queue(img_emb, txt_emb, q_img, q_txt, scale):
     return logits_per_text, logits_per_image
 
 
+def param_groups(model, wd=0.1):
+    """
+    This function applied weight decay to all appropriate layers (and skips those that are not).
+    """
+    decay, no_decay = [], []
+    for n, p in model.named_parameters():
+        if not p.requires_grad: 
+            continue
+        if p.ndim == 1 or n.endswith(".bias") or "logit_scale" in n:
+            no_decay.append(p)   # norms, biases, temperature
+        else:
+            decay.append(p)
+    return [
+        {"params": decay, "weight_decay": wd},
+        {"params": no_decay, "weight_decay": 0.0},
+    ]
 
-# TODO: copy over from here: https://chatgpt.com/c/68a3aba1-23ac-8331-9a7b-72213c056c29
+def save_checkpoint(path, model, optimizer, scheduler, epoch, global_step, extra: dict = None):
+    ckpt = {
+        "epoch": epoch,
+        "global_step": global_step,
+        "model": model.state_dict(),
+        "optimizer": optimizer.state_dict(),
+        "scheduler": scheduler.state_dict() if scheduler is not None else None,
+        "torch_rng_state": torch.get_rng_state(),
+        "cuda_rng_state": torch.cuda.get_rng_state_all(),
+        "numpy_rng_state": np.random.get_state(),
+        "python_rng_state": random.getstate(),
+    }
+    if extra:
+        ckpt["extra"] = extra
+    torch.save(ckpt, path)
 
-# TODO: right now, focus on tokenization and get it started as soon as you get back!x
+def load_checkpoint(path, model, optimizer=None, scheduler=None, map_location="cuda"):
+    ckpt = torch.load(path, map_location=map_location)
+    model.load_state_dict(ckpt["model"])
+    if optimizer is not None and "optimizer" in ckpt and ckpt["optimizer"] is not None:
+        optimizer.load_state_dict(ckpt["optimizer"])
+    if scheduler is not None and "scheduler" in ckpt and ckpt["scheduler"] is not None:
+        scheduler.load_state_dict(ckpt["scheduler"])
+    # restore random number generator - seems like a good idea
+    if "torch_rng_state" in ckpt:
+        torch.set_rng_state(ckpt["torch_rng_state"])
+    if "cuda_rng_state" in ckpt and torch.cuda.is_available():
+        torch.cuda.set_rng_state_all(ckpt["cuda_rng_state"])
+    if "numpy_rng_state" in ckpt:
+        np.random.set_state(ckpt["numpy_rng_state"])
+    if "python_rng_state" in ckpt:
+        random.setstate(ckpt["python_rng_state"])
+    start_epoch = int(ckpt.get("epoch", 0))
+    global_step = int(ckpt.get("global_step", 0))
+    extra = ckpt.get("extra", {})
+    return start_epoch, global_step, extra
 
-def train_clip():
+
+IMG_COL = "jpg"
+TXT_COL = "txt"
+
+torch.set_float32_matmul_precision('high')
+
+def make_collate(tokenizer, transform, max_len=MAX_LEN):
+    def collate(examples):
+        # images
+        imgs = [transform(ex[IMG_COL]) for ex in examples]
+        images = torch.stack(imgs, dim=0)  # float32, [B,3,128,128]
+
+        # text → tokens (right-pad, truncate)
+        caps = [ex[TXT_COL] if ex[TXT_COL] is not None else "" for ex in examples]
+        enc = tokenizer(
+            caps, padding=True, truncation=True, max_length=max_len, return_tensors="pt"
+        )
+        input_ids = enc["input_ids"].long()                 # [B, L]
+        attention = enc["attention_mask"].long()            # [B, L]
+        lengths = attention.sum(dim=1)                      # [B], useful for RNNs
+
+        return images, input_ids, lengths
+    return collate
+
+
+def print_clip_model_summary(model, batch_size):
+    # Example batch size
+    B, L = batch_size, 160  
+
+    x_img = torch.randn(B, 3, 128, 128)                     # float32 image
+    x_text = torch.randint(0, 1000, (B, L), dtype=torch.long) # int64 token IDs
+    lengths = torch.randint(1, L+1, (B,), dtype=torch.long)   # int64 sequence lengths
+
+    summary(model, input_data=(x_img, x_text, lengths))
+
+def train_clip(resume_path=None):
+    """
+    resume_path - set only if we need to continue from a checkpoint.
+    """
+
     config = {
         "img_feat_dim": 512,
         "text_feat_dim": 512,
         "shared_embedding_dim": 512,
-        "xbm_size": 8192
+        "xbm_size": 8192,
+        "clip_batch_size": 512,
+        "learning_rate": 5e-4, # recommended for CLIP was 5e-4 * (batch_size / 512)
+        "weight_decay": 0.1
     }
 
+    save_dir="./ckpts"
+    # um... with a batch of 512 3M will only have 5859 steps. We still have to time it though.
+    save_every_steps = 500
+    eval_every_steps = 500
+    print_every_steps = 100
+    dataloader_num_workers = 8 # tune this to the PC CPU.
+
     with wandb.init(mode="disabled", config=config,project="clip-custom",entity="alancasallas-self") as run:
-        model = CLIP(wandb.config.img_feat_dim, wandb.config.text_feat_dim, wandb.config.shared_embedding_dim) # TODO: put parameters in.
+        dataset = load_dataset("pixparse/cc3m-wds")
+        train_dataset = dataset["train"]
+        val_dataset = dataset["validation"]
+
+        tok = load_tokenizer()
+
+        train_collate = make_collate(tok, train_transform, MAX_LEN)
+        val_collate   = make_collate(tok, val_transform,   MAX_LEN)
+
+        train_loader = DataLoader(
+            train_dataset, batch_size=wandb.config.clip_batch_size, shuffle=True, drop_last=True,
+            num_workers=dataloader_num_workers, pin_memory=True, persistent_workers=dataloader_num_workers > 0,
+            collate_fn=train_collate
+        )
+
+        val_loader = DataLoader(
+            val_dataset, batch_size=wandb.config.clip_batch_size, shuffle=False, drop_last=False,
+            num_workers=dataloader_num_workers, pin_memory=True, persistent_workers=dataloader_num_workers > 0,
+            collate_fn=val_collate
+        )
+
+
+        # Load saved checkpoint if requested
+        start_epoch, global_step = 0, 0
+        best_val = float("inf")
+        if resume_path and os.path.isfile(resume_path):
+            start_epoch, global_step, extra = load_checkpoint(resume_path, model, optimizer, scheduler, device)
+            best_val = extra.get("best_val", best_val)
+            print(f"Resumed from {resume_path} at epoch={start_epoch}, global_step={global_step}")
+
+        # Warmup + cosine (to ~1e-6). ramp up over 2k steps:
+        warmup_steps = 2000
+        total_steps = len(training_loader) * num_epochs
+
+        # the famous cosine annealing with rampup.
+        def lr_lambda(step):
+            if step < warmup_steps:
+                return (step + 1) / warmup_steps
+            t = (step - warmup_steps) / max(1, total_steps - warmup_steps)
+            # cosine from 1.0 -> ~1e-6/base_lr
+            min_lr = 1e-6 / base_lr
+            return min_lr + 0.5 * (1 - min_lr) * (1 + math.cos(math.pi * t))
+
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+
+        model = CLIP(tok.vocab_size, wandb.config.img_feat_dim, wandb.config.text_feat_dim, wandb.config.shared_embedding_dim)
         model.to(device)
+        print_clip_model_summary(model, wandb.config.clip_batch_size)
+
+        optimizer = AdamW(param_groups(model, wd=wandb.config.weight_decay), lr=wandb.config.learning_rate, betas=(0.9, 0.98))
 
         # Set up XBM queues.
         q_img = RingQueue(dim=wandb.config.shared_embedding_dim, capacity=wandb.config.xbm_size, device=device, dtype=torch.float16)
         q_txt = RingQueue(dim=wandb.config.shared_embedding_dim, capacity=wandb.config.xbm_size, device=device, dtype=torch.float16)
         ce = nn.CrossEntropyLoss()
 
-        # TODO: change eval loop to run after every few iterations
-        # TODO: get wandb in here
-        for epoch in range(num_epochs):
-            running_loss, count = 0.0, 0
-            for batch in training_loader:
+        for epoch in range(start_epoch, num_epochs):
+            running_train_loss, running_train_img_correct, running_train_txt_correct, running_train_count = 0.0, 0, 0, 0
+            for step_number, batch in enumerate(training_loader):
+                model.train()
                 optimizer.zero_grad(set_to_none=True)
 
                 images, token_ids, lengths = batch
@@ -211,7 +383,7 @@ def train_clip():
                 token_ids = token_ids.to(device, non_blocking=True)
 
                 with torch.cuda.amp.autocast(dtype=torch.bfloat16):
-                    img_emb, txt_emb = model.encode(images, token_ids)  # L2-normalized (B, D)
+                    img_emb, txt_emb = model.encode(images, token_ids, lengths)  # L2-normalized (B, shared_embedding_dim)
                     # temperature param stays fp32 in the module; read the scale here
                     scale = model.logit_scale.exp().clamp(max=100.0)
 
@@ -219,42 +391,102 @@ def train_clip():
 
                 B = images.size(0)
                 target = torch.arange(B, device=device)
+
+                # CLIP loss
                 loss = 0.5 * (ce(logits_i, target) + ce(logits_t, target))
 
+                # accuracies
+                # TODO: to keep in mind: this accuracy will be lower because we're including the negatives from the queue. 
+                _, image_predictions = torch.max(logits_i,dim=-1)
+                _, text_predictions = torch.max(logits_t,dim=-1)
+                batch_img_correct += (image_predictions==target).sum()
+                batch_txt_correct += (text_predictions==target).sum()
+
                 loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optimizer.step()
+                scheduler.step()
 
                 # Update queues (store as fp16 to save VRAM; inputs are already unit-norm)
                 q_img.enqueue(img_emb.detach())
                 q_txt.enqueue(txt_emb.detach())
 
-                running_loss += loss.item() * B
-                count += B
+                running_train_loss += loss.item() * B
+                running_train_img_correct += batch_img_correct.item() * B
+                running_train_txt_correct += batch_txt_correct.item() * B
+                running_train_count += B
+                total_train_loss = running_train_loss/running_train_count
+                total_train_img_accuracy = running_train_img_correct/running_train_count
+                total_train_txt_accuracy = running_train_txt_correct/running_train_count
 
-            print(f"epoch {epoch}: train_loss={running_loss / max(1, count):.4f}")
+                global_step += 1
 
+                # print every few steps to show we are making progress
+                if global_step % print_every_steps == 0:
+                    print(f"[{datetime.datetime.now()}] Global step: {global_step} Training Loss: {total_train_loss:.4f} img logit accuracy {total_train_img_accuracy:.4f} text logit accuracy {total_train_txt_accuracy:.4f}")
 
-            # remember model.train() and model.eval()!
-            model.eval()
-            val_losses = 0
-            val_correct = 0
-            val_total = 0
+                # save every few steps
+                if global_step % save_every_steps == 0:
+                    ckpt_path = os.path.join(save_dir, f"step_{global_step}.pth")
+                    save_checkpoint(
+                        ckpt_path, model, optimizer, scheduler, epoch, global_step,
+                        extra={"best_val": best_val}
+                    )
+                    print(f"Checkpoint saved {ckpt_path}")
 
-            # TODO: update the eval for CLIP! Might have to be every few samples because might take too long to get around one epoch!
-            with torch.no_grad():
-                for i,data in enumerate(validation_loader):
-                    inputs, labels = data
-                    inputs = inputs.to(device)
-                    labels = labels.to(device)
-                    outputs = model(inputs) # this doesn't work because outputs is a 10 vector!
-                    _, predicted = torch.max(outputs, 1)
-                    loss =loss_fn(outputs,labels)
-                    val_losses += loss.item()*inputs.size(0)
-                    val_correct += (labels==predicted).sum().item()
-                    val_total += labels.size(0)
+                # TODO: we'll have to time how long it takes to eval entire validation set.
+                if global_step % eval_every_steps == 0:
+                    metrics = {
+                        "epoch": epoch,
+                        "global_step": global_step,
+                        "step_num": step_number,
+                        "train_loss": total_train_loss,
+                        "train_img_accuracy": total_train_img_accuracy,
+                        "train_txt_accuracy": total_train_txt_accuracy
+                    }
+                    model.eval()
+                    with torch.no_grad():
+                        running_val_loss, running_val_img_correct, running_val_txt_correct, running_val_count = 0.0,0,0,0
+                        for _ , val_batch in enumerate(validation_loader):
+                            images, token_ids, lengths = val_batch
+                            lengths = lengths.to(device, non_blocking=True)
+                            images    = images.to(device, non_blocking=True, memory_format=torch.channels_last)
+                            token_ids = token_ids.to(device, non_blocking=True)
+                            B = images.size(0)
 
-            print(f"validation loss {val_losses/val_total} accuracy {val_correct/val_total}")
-            metrics.update({"val_loss": train_losses/train_total})
+                            # TODO: do we need to call bf16 here?
+                            txt_embedding, img_embedding, logits_per_text, logits_per_image, _ = model(images, token_ids, lengths)
+                            target = torch.arange(B, device=device)
+                            running_val_loss += (0.5 * (ce(logits_per_image, target) + ce(logits_per_text, target))).item()*B
+                            _, images_predictions = torch.max(logits_i,dim=-1)
+                            _, text_predictions = torch.max(logits_t,dim=-1)
+                            running_val_img_correct += (images_predictions==target).sum().item()*B
+                            running_val_txt_correct += (text_predictions==target).sum().item()*B
+                            running_val_count += B
+
+                        total_val_loss = running_val_loss/running_val_count
+                        total_val_img_accuracy = running_val_img_correct/running_val_count
+                        total_val_txt_accuracy = running_val_txt_correct/running_val_count
+                        print(f"Eval complete. Epoch {epoch} step  {step_number} global step {global_step}.")
+                        print(f"validation loss {total_val_loss:.4f} val img accuracy {total_val_img_accuracy:4f} val txt accuracy {total_val_txt_accuracy:.4f}")
+                        metrics.update({
+                            "val_loss": current_val_loss,
+                            "val_img_accuracy": current_val_img_accuracy,
+                            "val_txt_accuracy": current_val_txt_accuracy
+                            })
+                    wandb.log(metrics)
+
+                    # TODO: not sure if we'll need this, we may just save every time we eval and choose best one.
+                    #if current_val_loss < best_val:
+                    #    best_val = current_val_loss:
+                    #    best_path = os.path.join(save_dir, "best.pth")
+                    #    save_checkpoint(best_path, model, optimizer, scheduler, epoch+1, global_step, extra={"best_val": best_val})
+                    #    print(f"[ckpt] saved {best_path} (rolling best/last)")
+
+        # final - probably won't get to this point.
+        final_path = os.path.join(save_dir, "final.pth")
+        save_checkpoint(final_path, model, optimizer, scheduler, num_epochs, global_step, extra={"best_val": best_val})
+        print(f"Final checkpoint saved {final_path}")
 
 
 if __name__ == "__main__":

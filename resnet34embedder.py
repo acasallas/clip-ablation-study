@@ -1,16 +1,20 @@
+"""
+This is the image encoder used in the custom CLIP implementation.
+It is a pretty typical Resnet-34.
+"""
+
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 
 def conv3x3(in_planes, out_planes, stride=1):
-    """3x3 convolution with padding."""
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                      padding=1, bias=False)
 
 
 def conv1x1(in_planes, out_planes, stride=1):
-    """1x1 convolution."""
     return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
 
 
