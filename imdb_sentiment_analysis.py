@@ -77,6 +77,7 @@ class RNN(nn.Module):
 
 # a recommendation: If you observe overfitting, add a Dropout(0.3) before fc or set dropout on GRU if you use num_layers > 1.
 
+# TODO: Karpathy did
 
 def main():
     config = {
