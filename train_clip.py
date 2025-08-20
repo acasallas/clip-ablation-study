@@ -1,4 +1,5 @@
 import datetime
+from functools import lru_cache, partial
 import math
 import os
 import random
@@ -20,6 +21,7 @@ import wandb
 
 import resnet34embedder
 import textembedder
+
 
 
 if torch.cuda.is_available():
@@ -79,20 +81,36 @@ val_transform = T.Compose([
 ])
 
 
-def load_tokenizer():
-    # reload your trained tokenizer
-    tok = Tokenizer.from_file("clip_bpe/tokenizer.json")
 
-    # wrap it into a Transformers-compatible object
+TOKENIZER_JSON_PATH = "clip_bpe/tokenizer.json"
+
+@lru_cache(maxsize=None)
+def _load_tok(path: str, max_len: int):
+    tok = Tokenizer.from_file(path)
     fast = PreTrainedTokenizerFast(
         tokenizer_object=tok,
         unk_token="[UNK]",
         pad_token="[PAD]",
         eos_token="[EOS]",
     )
-    fast.model_max_length = MAX_LEN
+    fast.model_max_length = max_len
     fast.padding_side = "right"
     return fast
+
+def collate_fn_top(examples, tokenizer_json_path: str, transform, max_len: int):
+    # images
+    imgs = [transform(ex["jpg"]) for ex in examples]
+    images = torch.stack(imgs, dim=0)
+
+    # text
+    caps = [ex["txt"] if ex["txt"] is not None else "" for ex in examples]
+    tok = _load_tok(tokenizer_json_path, max_len)
+    enc = tok(caps, padding=True, truncation=True, max_length=max_len, return_tensors="pt")
+    input_ids = enc["input_ids"].long()
+    attention = enc["attention_mask"].long()
+    lengths = attention.sum(dim=1).clamp_(min=1)  # guard against 0
+
+    return images, input_ids, lengths
 
 
 class RingQueue:
@@ -170,8 +188,6 @@ class CLIP(nn.Module):
 
 
 def compute_logits_with_queue(img_emb, txt_emb, q_img, q_txt, scale):
-    B = img_emb.size(0)
-
     all_txt = txt_emb if q_txt.size(0) == 0 else torch.cat([txt_emb, q_txt.to(dtype=txt_emb.dtype)], dim=0)
     all_img = img_emb if q_img.size(0) == 0 else torch.cat([img_emb, q_img.to(dtype=img_emb.dtype)], dim=0)
 
@@ -242,25 +258,6 @@ TXT_COL = "txt"
 MAX_LEN=160
 
 
-def make_collate(tokenizer, transform, max_len=MAX_LEN):
-    def collate(examples):
-        # images
-        imgs = [transform(ex[IMG_COL]) for ex in examples]
-        images = torch.stack(imgs, dim=0)  # float32, [B,3,128,128]
-
-        # text → tokens (right-pad, truncate)
-        caps = [ex[TXT_COL] if ex[TXT_COL] is not None else "" for ex in examples]
-        enc = tokenizer(
-            caps, padding=True, truncation=True, max_length=max_len, return_tensors="pt"
-        )
-        input_ids = enc["input_ids"].long()                 # [B, L]
-        attention = enc["attention_mask"].long()            # [B, L]
-        lengths = attention.sum(dim=1).clamp_(min=1)        # [B], useful for RNNs
-
-        return images, input_ids, lengths
-    return collate
-
-
 def print_clip_model_summary(model, batch_size, vocab_size, L=160):
     model.eval()
     dev = next(model.parameters()).device
@@ -285,44 +282,50 @@ def train_clip(resume_path=None):
         "text_feat_dim": 512,
         "shared_embedding_dim": 512,
         "xbm_size": 8192,
-        "clip_batch_size": 512,
-        "learning_rate": 5e-4, # recommended for CLIP was 5e-4 * (batch_size / 512)
+        "clip_batch_size": 2048,
+        "learning_rate": 1e-4, # recommended for CLIP was 5e-4 * (batch_size / 512)
         "weight_decay": 0.1
     }
 
-    save_dir="./ckpts"
+    save_dir="./second_try_ckpts"
     # um... with a batch of 512 3M will only have 5859 steps. We still have to time it though.
     save_every_steps = 500
     eval_every_steps = 500
     print_every_steps = 100
-    dataloader_num_workers = 8 # tune this to the PC CPU.
+    dataloader_num_workers = 4 # tune this to the PC CPU.
     num_epochs = 30
 
-    with wandb.init(mode="disabled", config=config,project="clip-custom-experiment",entity="alancasallas-self") as run:
+    with wandb.init(config=config,project="clip-custom-experiment",entity="alancasallas-self") as run:
         dataset = load_dataset("pixparse/cc3m-wds")
         train_dataset = dataset["train"]
         val_dataset = dataset["validation"]
 
-        tok = load_tokenizer()
-
-        train_collate = make_collate(tok, train_transform, MAX_LEN)
-        val_collate   = make_collate(tok, val_transform,   MAX_LEN)
+        train_collate = partial(
+            collate_fn_top, tokenizer_json_path=TOKENIZER_JSON_PATH,
+            transform=train_transform, max_len=MAX_LEN,
+        )
+        val_collate = partial(
+            collate_fn_top, tokenizer_json_path=TOKENIZER_JSON_PATH,
+            transform=val_transform, max_len=MAX_LEN,
+        )
 
         training_loader = DataLoader(
-            train_dataset, batch_size=wandb.config.clip_batch_size, shuffle=True, drop_last=True,
-            num_workers=dataloader_num_workers, pin_memory=True, persistent_workers=dataloader_num_workers > 0,
-            collate_fn=train_collate
+            train_dataset, batch_size=wandb.config.clip_batch_size, shuffle=True,
+            drop_last=True, num_workers=dataloader_num_workers, pin_memory=True,
+            persistent_workers=dataloader_num_workers > 0, collate_fn=train_collate,
         )
 
         validation_loader = DataLoader(
-            val_dataset, batch_size=wandb.config.clip_batch_size, shuffle=False, drop_last=False,
-            num_workers=dataloader_num_workers, pin_memory=True, persistent_workers=dataloader_num_workers > 0,
-            collate_fn=val_collate
+            val_dataset, batch_size=wandb.config.clip_batch_size, shuffle=False,
+            drop_last=False, num_workers=dataloader_num_workers, pin_memory=True,
+            persistent_workers=dataloader_num_workers > 0, collate_fn=val_collate,
         )
+
+        tok = _load_tok(TOKENIZER_JSON_PATH, MAX_LEN)
 
         model = CLIP(tok.vocab_size, wandb.config.img_feat_dim, wandb.config.text_feat_dim, wandb.config.shared_embedding_dim)
         model.to(device)
-        print_clip_model_summary(model, wandb.config.clip_batch_size, tok.vocab_size)
+        print_clip_model_summary(model, min(8, wandb.config.clip_batch_size), tok.vocab_size)
 
         # Warmup + cosine (to ~1e-6). ramp up over 2k steps:
         warmup_steps = 2000
@@ -342,7 +345,7 @@ def train_clip(resume_path=None):
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
         # Load saved checkpoint if requested
-        os.makedirs("./ckpts", exist_ok=True)
+        os.makedirs(save_dir, exist_ok=True)
         start_epoch, global_step, best_val = 0, 0, float("inf")
         if resume_path and os.path.isfile(resume_path):
             start_epoch, global_step, extra = load_checkpoint(resume_path, model, optimizer, scheduler, map_location=str(device))
