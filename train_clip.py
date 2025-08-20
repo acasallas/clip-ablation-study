@@ -1,3 +1,4 @@
+import argparse
 import datetime
 from functools import lru_cache, partial
 import math
@@ -268,8 +269,32 @@ def print_clip_model_summary(model, batch_size, vocab_size, L=160):
             dtypes=[torch.float32, torch.long, torch.long])
 
 
+def resolve_run_name(run_name, resume_name, resume_checkpoint):
+    """
+    If user passed in resume_name, we require a directory for that name to exist. If it does, that beccomes the run_name.
+    If user did not pass in resume_name and passed in run_name, we confirm that directory does not exist, create the directory,
+    and that becomes the run name. These checks help avoid accidentally clobbering old checkpoints.
+    """
+    if resume_name is not None:
+        if resume_checkpoint is None:
+            raise ValueError(f"No resume checkpoint passed for resume name {resume_name}"!)
+        save_dir=f"./{resume_name}_ckpts"
+        if os.path.isdir(save_dir):
+            print(f"Resuming run {resume_name}")
+            return resume_name, save_dir
+        else:
+            raise ValueError(f"Passed in resume name {resume_name} but no such run exists on disk.")
+    else:
+        save_dir=f"./{run_name}_ckpts"
+        if os.path.isdir(save_dir):
+            raise ValueError(f"Run name {run_name} cannot be created. Already exists on disk.")
+        else:
+            print(f"Creating directory for {run_name}.")
+            os.makedirs(save_dir)
+            return run_name, save_dir
 
-def train_clip(resume_path=None):
+
+def train_clip(run_name, resume_name=None, resume_checkpoint=None):
     """
     resume_path - set only if we need to continue from a checkpoint.
     """
@@ -287,7 +312,8 @@ def train_clip(resume_path=None):
         "weight_decay": 0.1
     }
 
-    save_dir="./second_try_ckpts"
+    run_name, save_dir = resolve_run_name(run_name, resume_name)
+
     # um... with a batch of 512 3M will only have 5859 steps. We still have to time it though.
     save_every_steps = 500
     eval_every_steps = 500
@@ -295,7 +321,7 @@ def train_clip(resume_path=None):
     dataloader_num_workers = 4 # tune this to the PC CPU.
     num_epochs = 30
 
-    with wandb.init(config=config,project="clip-custom-experiment",entity="alancasallas-self") as run:
+    with wandb.init(config=config,project="clip-custom-experiment",entity="alancasallas-self",name=run_name) as run:
         dataset = load_dataset("pixparse/cc3m-wds")
         train_dataset = dataset["train"]
         val_dataset = dataset["validation"]
@@ -344,11 +370,12 @@ def train_clip(resume_path=None):
         optimizer = AdamW(param_groups(model, wd=wandb.config.weight_decay), lr=wandb.config.learning_rate, betas=(0.9, 0.98))
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
-        # Load saved checkpoint if requested
-        os.makedirs(save_dir, exist_ok=True)
+        
         start_epoch, global_step, best_val = 0, 0, float("inf")
-        if resume_path and os.path.isfile(resume_path):
-            start_epoch, global_step, extra = load_checkpoint(resume_path, model, optimizer, scheduler, map_location=str(device))
+
+        # Load saved checkpoint if requested
+        if resume_path:
+            start_epoch, global_step, extra = load_checkpoint(os.path.join(save_dir, resume_checkpoint), model, optimizer, scheduler, map_location=str(device))
             best_val = extra.get("best_val", best_val)
             print(f"Resumed from {resume_path} at epoch={start_epoch}, global_step={global_step}")
 
@@ -478,4 +505,11 @@ def train_clip(resume_path=None):
 
 
 if __name__ == "__main__":
-    train_clip()
+    # Create an ArgumentParser object
+    parser = argparse.ArgumentParser(description="A simple command-line program.")
+    parser.add_argument("run-name", type=str, help="wandb run name")
+    parser.add_argument("--resume-name", type=str, help="wandb run to resume name")
+    parser.add_argument("--resume-checkpoint", type=str, help="wandb run to resume name")
+    args = parser.parse_args()
+
+    train_clip(args.run_name, args.resume_name, args.resume_checkpoint)
