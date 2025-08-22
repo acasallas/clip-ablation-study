@@ -1,3 +1,4 @@
+import argparse
 import datetime
 from functools import lru_cache, partial
 import math
@@ -19,9 +20,8 @@ from tokenizers import Tokenizer
 from transformers import PreTrainedTokenizerFast
 import wandb
 
-import resnet34embedder
-import textembedder
-
+from clip_model import CLIP
+from common_utils import save_checkpoint, load_checkpoint
 
 
 if torch.cuda.is_available():
@@ -151,40 +151,7 @@ class RingQueue:
         return self.buf[:self.size]
 
 
-class CLIP(nn.Module):
-    def __init__(self, vocab_size, img_feat_dim, text_feat_dim, shared_dim):
-        super().__init__()
 
-        self.text_encoder = textembedder.TextRNN(vocab_size=vocab_size, text_feat_dim=text_feat_dim,dropout=0.1,pad_id=0)
-        self.image_encoder = resnet34embedder.ResNet34Embedder(img_feat_dim)
-
-        self.img_ln  = nn.LayerNorm(img_feat_dim)
-        self.txt_ln  = nn.LayerNorm(text_feat_dim)
-        self.image_projector = nn.Linear(img_feat_dim, shared_dim, bias=False)
-        self.text_projector  = nn.Linear(text_feat_dim, shared_dim, bias=False)
-        self.logit_scale = nn.Parameter(torch.tensor(math.log(1/0.07), dtype=torch.float32))
-        # TODO: std 0.02 was recommended, but can we confirm that's good for the input dim size?
-        nn.init.trunc_normal_(self.image_projector.weight, std=0.02)
-        nn.init.trunc_normal_(self.text_projector.weight,  std=0.02)
-
-    def encode(self, x_img, x_text, lengths):
-        # returns L2-normalized embeddings
-        # Note on image encoder: Input expected: (B, 3, 128, 128), that is channels is dimension 1. Output: B, img_feat_dim
-        img = self.image_projector(self.img_ln(self.image_encoder(x_img)))
-        # Note on text encoder:  Input expected: tokens (B,L), lengths (B). Output: B, text_feat_dim
-        txt = self.text_projector(self.txt_ln(self.text_encoder(x_text, lengths)))
-        img = F.normalize(img, p=2, dim=-1)
-        txt = F.normalize(txt, p=2, dim=-1)
-        return img, txt
-
-    def forward(self, x_img, x_text, lengths):
-        # keep forward as a convenience for non-queue eval
-        img, txt = self.encode(x_img, x_text, lengths)
-        scale = self.logit_scale.exp().clamp(max=100.0)
-        # batch-only logits for quick eval
-        logits_per_image = (img.float() @ txt.float().t()) * scale
-        logits_per_text  = logits_per_image.t()
-        return txt, img, logits_per_text, logits_per_image, scale
 
 
 def compute_logits_with_queue(img_emb, txt_emb, q_img, q_txt, scale):
@@ -216,41 +183,6 @@ def param_groups(model, wd=0.1):
         {"params": no_decay, "weight_decay": 0.0},
     ]
 
-def save_checkpoint(path, model, optimizer, scheduler, epoch, global_step, extra: dict = None):
-    ckpt = {
-        "epoch": epoch,
-        "global_step": global_step,
-        "model": model.state_dict(),
-        "optimizer": optimizer.state_dict(),
-        "scheduler": scheduler.state_dict() if scheduler is not None else None,
-        "torch_rng_state": torch.get_rng_state(),
-        "cuda_rng_state": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
-        "numpy_rng_state": np.random.get_state(),
-        "python_rng_state": random.getstate(),
-    }
-    if extra:
-        ckpt["extra"] = extra
-    torch.save(ckpt, path)
-
-def load_checkpoint(path, model, optimizer=None, scheduler=None, map_location="cpu"):
-    ckpt = torch.load(path, map_location=map_location)
-    model.load_state_dict(ckpt["model"])
-    if optimizer is not None and ckpt.get("optimizer") is not None:
-        optimizer.load_state_dict(ckpt["optimizer"])
-    if scheduler is not None and ckpt.get("scheduler") is not None:
-        scheduler.load_state_dict(ckpt["scheduler"])
-
-    # restore random number generator - seems like a good idea.
-    if "torch_rng_state" in ckpt: torch.set_rng_state(ckpt["torch_rng_state"])
-    if torch.cuda.is_available() and ckpt.get("cuda_rng_state") is not None:
-        torch.cuda.set_rng_state_all(ckpt["cuda_rng_state"])
-    if "numpy_rng_state" in ckpt: np.random.set_state(ckpt["numpy_rng_state"])
-    if "python_rng_state" in ckpt: random.setstate(ckpt["python_rng_state"])
-
-    start_epoch  = int(ckpt.get("epoch", 0))
-    global_step  = int(ckpt.get("global_step", 0))
-    extra        = ckpt.get("extra", {})
-    return start_epoch, global_step, extra
 
 
 IMG_COL = "jpg"
@@ -268,8 +200,32 @@ def print_clip_model_summary(model, batch_size, vocab_size, L=160):
             dtypes=[torch.float32, torch.long, torch.long])
 
 
+def resolve_run_name(run_name, resume_name, resume_checkpoint):
+    """
+    If user passed in resume_name, we require a directory for that name to exist. If it does, that beccomes the run_name.
+    If user did not pass in resume_name and passed in run_name, we confirm that directory does not exist, create the directory,
+    and that becomes the run name. These checks help avoid accidentally clobbering old checkpoints.
+    """
+    if resume_name is not None:
+        if resume_checkpoint is None:
+            raise ValueError(f"No resume checkpoint passed for resume name {resume_name}"!)
+        save_dir=f"./{resume_name}_ckpts"
+        if os.path.isdir(save_dir):
+            print(f"Resuming run {resume_name}")
+            return resume_name, save_dir
+        else:
+            raise ValueError(f"Passed in resume name {resume_name} but no such run exists on disk.")
+    else:
+        save_dir=f"./{run_name}_ckpts"
+        if os.path.isdir(save_dir):
+            raise ValueError(f"Run name {run_name} cannot be created. Already exists on disk.")
+        else:
+            print(f"Creating directory for {run_name}.")
+            os.makedirs(save_dir)
+            return run_name, save_dir
 
-def train_clip(resume_path=None):
+
+def train_clip(run_name, resume_name=None, resume_checkpoint=None):
     """
     resume_path - set only if we need to continue from a checkpoint.
     """
@@ -286,10 +242,11 @@ def train_clip(resume_path=None):
         "learning_rate": 1e-4, # recommended for CLIP was 5e-4 * (batch_size / 512)
         "weight_decay": 0.1
     }
-
+    
     use_xbm_queue = False
 
-    save_dir="./third_try_ckpts"
+    run_name, save_dir = resolve_run_name(run_name, resume_name)
+
     # um... with a batch of 512 3M will only have 5859 steps. We still have to time it though.
     save_every_steps = 500
     eval_every_steps = 500
@@ -297,7 +254,7 @@ def train_clip(resume_path=None):
     dataloader_num_workers = 4 # tune this to the PC CPU.
     num_epochs = 30
 
-    with wandb.init(config=config,project="clip-custom-experiment",entity="alancasallas-self") as run:
+    with wandb.init(config=config,project="clip-custom-experiment",entity="alancasallas-self",name=run_name) as run:
         dataset = load_dataset("pixparse/cc3m-wds")
         train_dataset = dataset["train"]
         val_dataset = dataset["validation"]
@@ -346,11 +303,12 @@ def train_clip(resume_path=None):
         optimizer = AdamW(param_groups(model, wd=wandb.config.weight_decay), lr=wandb.config.learning_rate, betas=(0.9, 0.98))
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
-        # Load saved checkpoint if requested
-        os.makedirs(save_dir, exist_ok=True)
+        
         start_epoch, global_step, best_val = 0, 0, float("inf")
-        if resume_path and os.path.isfile(resume_path):
-            start_epoch, global_step, extra = load_checkpoint(resume_path, model, optimizer, scheduler, map_location=str(device))
+
+        # Load saved checkpoint if requested
+        if resume_path:
+            start_epoch, global_step, extra = load_checkpoint(os.path.join(save_dir, resume_checkpoint), model, optimizer, scheduler, map_location=str(device))
             best_val = extra.get("best_val", best_val)
             print(f"Resumed from {resume_path} at epoch={start_epoch}, global_step={global_step}")
 
@@ -488,4 +446,11 @@ def train_clip(resume_path=None):
 
 
 if __name__ == "__main__":
-    train_clip()
+    # Create an ArgumentParser object
+    parser = argparse.ArgumentParser(description="A simple command-line program.")
+    parser.add_argument("run-name", type=str, help="wandb run name")
+    parser.add_argument("--resume-name", type=str, help="wandb run to resume name")
+    parser.add_argument("--resume-checkpoint", type=str, help="wandb run to resume name")
+    args = parser.parse_args()
+
+    train_clip(args.run_name, args.resume_name, args.resume_checkpoint)
