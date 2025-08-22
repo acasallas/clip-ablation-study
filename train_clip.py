@@ -287,7 +287,9 @@ def train_clip(resume_path=None):
         "weight_decay": 0.1
     }
 
-    save_dir="./second_try_ckpts"
+    use_xbm_queue = False
+
+    save_dir="./third_try_ckpts"
     # um... with a batch of 512 3M will only have 5859 steps. We still have to time it though.
     save_every_steps = 500
     eval_every_steps = 500
@@ -328,7 +330,7 @@ def train_clip(resume_path=None):
         print_clip_model_summary(model, min(8, wandb.config.clip_batch_size), tok.vocab_size)
 
         # Warmup + cosine (to ~1e-6). ramp up over 2k steps:
-        warmup_steps = 2000
+        warmup_steps = 1000
         total_steps = len(training_loader) * num_epochs
         base_lr = wandb.config.learning_rate
 
@@ -368,13 +370,20 @@ def train_clip(resume_path=None):
                 images    = images.to(device, non_blocking=True, memory_format=torch.channels_last)
                 token_ids = token_ids.to(device, non_blocking=True)
 
+                if global_step == 1:
+                    print("lengths stats:", lengths.min().item(), lengths.float().mean().item(), lengths.float().std().item(), lengths.max().item())
+
                 use_bf16 = (device.type == "cuda") and torch.cuda.is_bf16_supported()
                 autocast_dtype = torch.bfloat16 if use_bf16 else torch.float16 if device.type == "cuda" else torch.float32
-                with torch.autocast(device_type=device.type, dtype=autocast_dtype):
-                    img_emb, txt_emb = model.encode(images, token_ids, lengths)
-                    scale = model.logit_scale.exp().clamp(max=100.0)
 
-                logits_t, logits_i = compute_logits_with_queue(img_emb, txt_emb, q_img.get(), q_txt.get(), scale)
+                if use_xbm_queue:
+                    with torch.autocast(device_type=device.type, dtype=autocast_dtype):
+                        img_emb, txt_emb = model.encode(images, token_ids, lengths)
+                        scale = model.logit_scale.exp().clamp(max=100.0)
+                    logits_t, logits_i = compute_logits_with_queue(img_emb, txt_emb, q_img.get(), q_txt.get(), scale)
+                else:
+                    with torch.autocast(device_type=device.type, dtype=autocast_dtype):
+                        _, _, logits_t, logits_i, scale = model(images, token_ids, lengths)  # in-batch only
 
                 B = images.size(0)
                 target = torch.arange(B, device=device)
@@ -388,8 +397,9 @@ def train_clip(resume_path=None):
                 scheduler.step()
 
                 # Update queues (store as fp16 to save VRAM; inputs are already unit-norm)
-                q_img.enqueue(img_emb.detach())
-                q_txt.enqueue(txt_emb.detach())
+                if use_xbm_queue:
+                    q_img.enqueue(img_emb.detach())
+                    q_txt.enqueue(txt_emb.detach())
 
 
                 # TODO: to keep in mind: this accuracy will be lower because we're including the negatives from the queue. 
