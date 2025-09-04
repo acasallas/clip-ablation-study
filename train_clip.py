@@ -208,7 +208,7 @@ def resolve_run_name(run_name, resume_name, resume_checkpoint):
     """
     if resume_name is not None:
         if resume_checkpoint is None:
-            raise ValueError(f"No resume checkpoint passed for resume name {resume_name}"!)
+            raise ValueError(f"No resume checkpoint passed for resume name {resume_name}!")
         save_dir=f"./{resume_name}_ckpts"
         if os.path.isdir(save_dir):
             print(f"Resuming run {resume_name}")
@@ -244,8 +244,9 @@ def train_clip(run_name, resume_name=None, resume_checkpoint=None):
     }
     
     use_xbm_queue = False
-
-    run_name, save_dir = resolve_run_name(run_name, resume_name)
+    print(run_name)
+    print(resume_name)
+    run_name, save_dir = resolve_run_name(run_name, resume_name, resume_checkpoint)
 
     # um... with a batch of 512 3M will only have 5859 steps. We still have to time it though.
     save_every_steps = 500
@@ -448,7 +449,7 @@ def train_clip(run_name, resume_name=None, resume_checkpoint=None):
 if __name__ == "__main__":
     # Create an ArgumentParser object
     parser = argparse.ArgumentParser(description="A simple command-line program.")
-    parser.add_argument("run-name", type=str, help="wandb run name")
+    parser.add_argument("run_name", type=str, help="wandb run name")
     parser.add_argument("--resume-name", type=str, help="wandb run to resume name")
     parser.add_argument("--resume-checkpoint", type=str, help="wandb run to resume name")
     args = parser.parse_args()

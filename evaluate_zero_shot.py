@@ -21,6 +21,22 @@ from transformers import PreTrainedTokenizerFast
 from clip_model import CLIP
 
 
+# Results were top-1 8.3% and top-5 19.6%
+
+# TODO: zero shot results were disappointing. Some things to check
+# look at the imagenet images and compare them to the cc3m images. Are there any obvious differences?
+# can you come up with better caption templates?
+# maybe re-do the logic to not depend on the 1000x1000 grid, and average the l2 embeddings.
+# find out what CLIP's accuracy and loss were on the model that did well in zero shot.
+# maybe this shows an RNN has poor generalization.
+
+"""
+Recommendation, implement this if time:
+Prompt bank (fast win): go from 2 templates to ~50–80; average the text embeddings per class (plus WordNet synonyms when available),
+ then L2-norm. This alone often gives +3–10% absolute on zero-shot.
+"""
+
+
 # ---------------- Device ----------------
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -40,13 +56,18 @@ MAX_LEN = 160  # adjust to your text encoder limit
 NUM_IMAGENET_CLASSES = 1000
 
 TEMPLATES = [
-    "an image of a {}",
-    "an image of the {} .",
-    "a {}",
-    "a photo of a {} .",
-    "a photo of the {}",
-    "a picture of a {} .",
-    "a picture of the {}",
+    #"an image of a {} in the place with the {}",
+    #"an image of the {} .",
+    #"a {}",
+    #"here we can see a photo of a {} shown in the center of the image .",
+    #"a photo of the {}",
+    #"here is a {} .",
+    #"a {} on a place in here",
+    #"{} can be seen here .",
+    #"{} appearing in the center",
+    #"{} appears in this photo",
+    #"{} {}",
+    #"{}"
 ]
 
 
@@ -86,7 +107,10 @@ def main(run_name: str, checkpoint_name: str):
     url = "https://raw.githubusercontent.com/pytorch/hub/master/imagenet_classes.txt"
     imagenet_classes = [line.strip().decode() for line in urllib.request.urlopen(url)]
     assert len(imagenet_classes) == NUM_IMAGENET_CLASSES
+
     print(f"Example ImageNet classes: {imagenet_classes[:10]}")
+    for i, c in enumerate(imagenet_classes):
+        print(f"{i} {c}")
 
     # Tokenizer loader (we'll call it inside collate_fn as you wanted)
     tok_loader = _load_tok
@@ -104,11 +128,12 @@ def main(run_name: str, checkpoint_name: str):
         shared_dim=config["shared_embedding_dim"],
     )
     ckpt_path = os.path.join(f"./{run_name}_ckpts", checkpoint_name)
-    ckpt = torch.load(ckpt_path, map_location="cpu")
-    model.load_state_dict(ckpt["model"])
+    ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+    model.load_state_dict(ckpt.get("model", ckpt), strict=False)
     model.to(device).eval()
 
     # Dataset (streaming=True) and transforms
+    print("Now loading dataset from huggingface...")
     imagenet_val = load_dataset("timm/imagenet-1k-wds", split="validation", streaming=True)
 
     val_transform = T.Compose([
@@ -157,9 +182,12 @@ def main(run_name: str, checkpoint_name: str):
     running_top5 = 0
     running_count = 0
 
+    print(f"Now running evaluation...")
+
     with torch.no_grad():
         for images, token_ids, lengths, labels in loader:
             # Move to device
+            print(f"running_count so far: {running_count}")
             images = images.to(device, non_blocking=True, memory_format=torch.channels_last)
             token_ids = token_ids.to(device, non_blocking=True)
             lengths = lengths.to(device, non_blocking=True)
@@ -174,6 +202,9 @@ def main(run_name: str, checkpoint_name: str):
             running_top1 += (top1 == labels).sum().item()
             running_top5 += (top5 == labels.unsqueeze(1)).any(dim=1).sum().item()
             running_count += labels.size(0)
+            if running_count > 3000:
+                break
+
 
     print("Imagenet evaluation complete.")
     print(f"Top-1 Accuracy: {running_top1 / running_count:.4f}")
