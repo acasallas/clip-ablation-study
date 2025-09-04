@@ -21,6 +21,22 @@ from transformers import PreTrainedTokenizerFast
 from clip_model import CLIP
 
 
+classes = []
+with open("imagenet_descriptions.txt") as f:
+    lines = f.readlines()
+    for i, line in enumerate(lines):
+        if i%2 == 0:
+            classes.append(lines[i].strip().lower())
+        else:
+            if line[0].lower() == "a":
+                classes[-1] = classes[-1] + " is " + line.strip().lower()
+            else:
+                classes[-1] = classes[-1] + " " + line.strip().lower()
+imagenet_class_prompts = classes
+print(imagenet_class_prompts[200:205])
+
+
+
 # ---------------- Device ----------------
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -75,9 +91,10 @@ def _load_tok(path: str, max_len: int):
 
 def build_random_template_prompts(imagenet_classes):
     # For each class id c in [0..999], pick a random template and fill in the class name.
-    prompts = [TEMPLATES[random.randrange(len(TEMPLATES))].format(imagenet_classes[c])
-               for c in range(NUM_IMAGENET_CLASSES)]
-    return prompts
+    return imagenet_class_prompts
+    #prompts = [TEMPLATES[random.randrange(len(TEMPLATES))].format(imagenet_classes[c])
+    #           for c in range(NUM_IMAGENET_CLASSES)]
+    #return prompts
 
 
 # ---------------- Main ----------------
