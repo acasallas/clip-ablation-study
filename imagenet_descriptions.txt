@@ -1,0 +1,2000 @@
+tench
+A freshwater fish found in European rivers and lakes.
+goldfish
+A small orange pet fish kept in aquariums.
+great white shark
+A large, powerful ocean shark with sharp teeth.
+tiger shark
+A big shark with dark stripes on its body.
+hammerhead
+A shark with a flattened, hammer-shaped head.
+electric ray
+A flat fish that can produce electric shocks.
+stingray
+A flat fish with a poisonous spike tail.
+cock (rooster)
+A male chicken that crows loudly in mornings.
+hen
+A female chicken that lays eggs.
+ostrich
+A very large bird that cannot fly.
+brambling
+A small songbird with orange and black feathers.
+goldfinch
+A small yellow bird that eats seeds.
+house finch
+A common small bird found around homes.
+junco
+A small gray bird with white tail feathers.
+indigo bunting
+A small blue songbird found in North America.
+robin
+A red-breasted bird that sings in spring.
+bulbul
+A songbird with a melodious voice from Asia.
+jay
+A blue bird known for being loud and smart.
+magpie
+A black and white bird that collects shiny objects.
+chickadee
+A small bird that says "chick-a-dee-dee-dee."
+water ouzel
+A small bird that swims and dives underwater.
+kite
+A bird of prey with long, narrow wings.
+bald eagle
+America's national bird with a white head.
+vulture
+A large bird that eats dead animals.
+great grey owl
+A large owl with gray feathers and big eyes.
+European fire salamander
+A black salamander with bright yellow or orange spots.
+common newt
+A small amphibian that lives in water and land.
+eft
+A young newt that lives on land.
+spotted salamander
+A salamander with yellow spots on dark skin.
+axolotl
+A water salamander that keeps its gills forever.
+bullfrog
+A large frog that makes deep croaking sounds.
+tree frog
+A small frog that lives in trees.
+tailed frog
+A frog with a short tail-like structure.
+loggerhead
+A large sea turtle with a big head.
+leatherback turtle
+The largest sea turtle with leathery shell.
+mud turtle
+A small turtle that lives in muddy water.
+terrapin
+A turtle that lives in fresh and salt water.
+box turtle
+A turtle that can close its shell completely.
+banded gecko
+A small lizard with bands across its body.
+common iguana
+A large green lizard often kept as pet.
+American chameleon
+A small lizard that changes color slightly.
+whiptail
+A fast lizard with a very long tail.
+agama
+A colorful lizard that lives in hot places.
+frilled lizard
+A lizard with a large collar around neck.
+alligator lizard
+A lizard with scales like an alligator.
+Gila monster
+A poisonous lizard from the American Southwest.
+green lizard
+A bright green lizard found in Europe.
+African chameleon
+A lizard that changes colors and moves eyes.
+Komodo dragon
+The world's largest living lizard species.
+African crocodile
+A large reptile that lives in African rivers.
+American alligator
+A large reptile found in southeastern United States.
+triceratops
+A plant-eating dinosaur with three horns on head.
+thunder snake
+A small, smooth snake that lives underground.
+ringneck snake
+A small snake with orange ring around neck.
+hognose snake
+A snake that plays dead when threatened.
+green snake
+A thin, bright green snake that eats insects.
+king snake
+A snake that eats other snakes.
+garter snake
+A common striped snake found in gardens.
+water snake
+A snake that lives near water.
+vine snake
+A thin snake that looks like plant vine.
+night snake
+A small snake that hunts at night.
+boa constrictor
+A large snake that squeezes its prey.
+rock python
+A very large snake from Africa.
+Indian cobra
+A poisonous snake that spreads its neck hood.
+green mamba
+A fast, poisonous green snake from Africa.
+sea snake
+A poisonous snake that lives in ocean.
+horned viper
+A poisonous snake with horns above eyes.
+diamondback
+A poisonous snake with diamond-shaped back patterns.
+sidewinder
+A desert snake that moves sideways.
+trilobite
+An ancient sea creature with three body parts.
+harvestman
+A spider-like creature with very long legs.
+scorpion
+An animal with claws and poisonous tail stinger.
+black and gold garden spider
+A large spider with yellow and black stripes.
+barn spider
+A spider that builds webs in barns.
+garden spider
+A common spider found in gardens.
+black widow
+A poisonous spider with red hourglass marking.
+tarantula
+A large, hairy spider.
+wolf spider
+A hunting spider that chases its prey.
+tick
+A small bug that sucks blood.
+centipede
+A long bug with many legs.
+black grouse
+A large black bird that lives in mountains.
+ptarmigan
+A bird that changes color with seasons.
+ruffed grouse
+A forest bird with feathered neck ruff.
+prairie chicken
+A bird that dances on prairie grasslands.
+peacock
+A colorful bird with a large fan tail.
+quail
+A small, round ground bird.
+partridge
+A plump bird that lives on ground.
+African grey
+A smart gray parrot that can talk.
+macaw
+A large, colorful parrot from tropical areas.
+sulphur-crested cockatoo
+A white parrot with yellow head crest.
+lorikeet
+A colorful parrot that eats flower nectar.
+coucal
+A large bird related to cuckoos.
+bee eater
+A colorful bird that catches flying insects.
+hornbill
+A bird with large beak and head casque.
+hummingbird
+A tiny bird that hovers while feeding.
+jacamar
+A colorful bird that catches flying insects.
+toucan
+A tropical bird with very large beak.
+drake
+A male duck.
+red-breasted merganser
+A duck with spiky head feathers.
+goose
+A large water bird with long neck.
+black swan
+A large black water bird with red beak.
+tusker
+An elephant with large, prominent tusks.
+echidna
+A spiny mammal that lays eggs.
+platypus
+An egg-laying mammal with duck-like bill.
+wallaby
+A small kangaroo that hops around.
+koala
+A furry Australian animal that eats eucalyptus.
+wombat
+A short, stocky Australian marsupial.
+jellyfish
+A transparent sea animal with stinging tentacles.
+sea anemone
+A colorful sea creature that looks like flower.
+brain coral
+A coral that looks like human brain.
+flatworm
+A thin, flat worm that lives underwater.
+nematode
+A tiny round worm found everywhere.
+conch
+A large sea snail with spiral shell.
+snail
+A slow animal that carries its shell.
+slug
+A snail without a shell.
+sea slug
+A colorful slug that lives in ocean.
+chiton
+A sea animal with eight shell plates.
+chambered nautilus
+A sea animal with coiled, striped shell.
+Dungeness crab
+A large crab caught for food.
+rock crab
+A crab that lives among ocean rocks.
+fiddler crab
+A small crab with one large claw.
+king crab
+A very large crab with long legs.
+American lobster
+A large sea animal with big claws.
+spiny lobster
+A lobster without claws but with spines.
+crayfish
+A small freshwater animal like tiny lobster.
+hermit crab
+A crab that lives in empty shells.
+isopod
+A small sea creature with many legs.
+white stork
+A large white bird with long legs.
+black stork
+A large black bird with red beak.
+spoonbill
+A wading bird with spoon-shaped beak.
+flamingo
+A pink bird that stands on one leg.
+little blue heron
+A small blue bird that catches fish.
+American egret
+A large white bird with long neck.
+bittern
+A secretive bird that lives in marshes.
+crane (bird)
+A tall bird with long neck and legs.
+limpkin
+A brown bird that eats snails.
+European gallinule
+A water bird with bright red beak.
+American coot
+A dark water bird with white beak.
+bustard
+A large bird that lives on grasslands.
+ruddy turnstone
+A small bird that flips over stones.
+red-backed sandpiper
+A small shore bird with reddish back.
+redshank
+A shore bird with bright red legs.
+dowitcher
+A shore bird with very long beak.
+oystercatcher
+A black bird that eats shellfish.
+pelican
+A large bird with huge throat pouch.
+king penguin
+A large penguin with orange neck markings.
+albatross
+A huge seabird with very long wings.
+grey whale
+A large whale that migrates long distances.
+killer whale
+A black and white whale that hunts.
+dugong
+A sea mammal that eats underwater plants.
+sea lion
+A seal that can walk on land.
+Chihuahua
+The world's smallest dog breed.
+Japanese spaniel
+A small dog with flat face.
+Maltese dog
+A tiny white dog with silky hair.
+Pekinese
+A small flat-faced dog from China.
+Shih-Tzu
+A small dog with long, flowing hair.
+Blenheim spaniel
+A small spaniel with chestnut and white.
+papillon
+A small dog with butterfly-like ears.
+toy terrier
+A very small terrier dog.
+Rhodesian ridgeback
+A dog with backward-growing hair ridge.
+Afghan hound
+A dog with very long, silky hair.
+basset
+A short dog with very long ears.
+beagle
+A medium dog used for hunting rabbits.
+bloodhound
+A dog with excellent sense of smell.
+bluetick
+A hunting dog with blue-speckled coat.
+black-and-tan coonhound
+A hunting dog with black and tan.
+Walker hound
+A hunting dog that tracks scents.
+English foxhound
+A dog bred to hunt foxes.
+redbone
+A hunting dog with reddish coat.
+borzoi
+A tall, thin dog from Russia.
+Irish wolfhound
+The tallest dog breed in world.
+Italian greyhound
+A small, thin racing dog.
+whippet
+A small, fast racing dog.
+Ibizan hound
+A tall, thin hunting dog from Spain.
+Norwegian elkhound
+A gray dog that hunts elk.
+otterhound
+A large dog that hunts otters.
+Saluki
+An ancient thin dog from Middle East.
+Scottish deerhound
+A large dog that hunts deer.
+Weimaraner
+A gray dog with light-colored eyes.
+Staffordshire bullterrier
+A strong, muscular terrier dog.
+American Staffordshire terrier
+A strong American version of bull terrier.
+Bedlington terrier
+A terrier that looks like sheep.
+Border terrier
+A small working terrier from Britain.
+Kerry blue terrier
+An Irish terrier with blue-gray coat.
+Irish terrier
+A red terrier dog from Ireland.
+Norfolk terrier
+A small terrier with dropped ears.
+Norwich terrier
+A small terrier with pointed ears.
+Yorkshire terrier
+A tiny dog with long, silky hair.
+wire-haired fox terrier
+A terrier with rough, wiry coat.
+Lakeland terrier
+A small terrier from English Lake District.
+Sealyham terrier
+A small white Welsh terrier.
+Airedale
+The largest terrier dog breed.
+cairn
+A small Scottish terrier with rough coat.
+Australian terrier
+A small terrier from Australia.
+Dandie Dinmont
+A small terrier with silky top-knot.
+Boston bull
+A small dog with flat face.
+miniature schnauzer
+A small dog with beard and eyebrows.
+giant schnauzer
+A large dog with beard and eyebrows.
+standard schnauzer
+A medium dog with wiry coat.
+Scotch terrier
+A small black dog from Scotland.
+Tibetan terrier
+A shaggy dog from Tibet mountains.
+silky terrier
+A small dog with silky blue coat.
+soft-coated wheaten terrier
+A terrier with soft, wheat-colored coat.
+West Highland white terrier
+A small white Scottish terrier.
+Lhasa
+A small dog with long coat.
+flat-coated retriever
+A dog that retrieves with flat coat.
+curly-coated retriever
+A retriever with curly, waterproof coat.
+golden retriever
+A friendly dog with golden coat.
+Labrador retriever
+A popular family and hunting dog.
+Chesapeake Bay retriever
+A water retriever with wavy coat.
+German short-haired pointer
+A hunting dog that points at game.
+vizsla
+A hunting dog with golden-rust coat.
+English setter
+A hunting dog with feathered coat.
+Irish setter
+A hunting dog with red coat.
+Gordon setter
+A hunting dog with black coat.
+Brittany spaniel
+A hunting dog from France.
+clumber
+A heavy, slow-moving spaniel dog.
+English springer
+A medium-sized hunting spaniel.
+Welsh springer spaniel
+A red and white hunting spaniel.
+cocker spaniel
+A medium dog with long ears.
+Sussex spaniel
+A low, long spaniel with golden coat.
+Irish water spaniel
+A curly-coated dog that retrieves water.
+kuvasz
+A large white guard dog from Hungary.
+schipperke
+A small black dog from Belgium.
+groenendael
+A Belgian shepherd with long black coat.
+malinois
+A Belgian shepherd with short coat.
+briard
+A French herding dog with long coat.
+kelpie
+An Australian herding dog.
+komondor
+A large dog with corded white coat.
+Old English sheepdog
+A large dog with shaggy gray coat.
+Shetland sheepdog
+A small herding dog that looks like collie.
+collie
+A herding dog with long, pointed nose.
+Border collie
+A very smart herding dog.
+Bouvier des Flandres
+A large, shaggy Belgian working dog.
+Rottweiler
+A large black dog with tan markings.
+German shepherd
+A large dog used for police work.
+Doberman
+A sleek black dog with tan markings.
+miniature pinscher
+A small dog that looks like Doberman.
+Greater Swiss Mountain dog
+A large dog with three-colored coat.
+Bernese mountain dog
+A large dog with long, silky coat.
+Appenzeller
+A Swiss mountain dog with curled tail.
+EntleBucher
+The smallest Swiss mountain dog.
+boxer
+A medium dog with flat, wrinkled face.
+bull mastiff
+A large, powerful guard dog.
+Tibetan mastiff
+A huge, furry dog from Tibet.
+French bulldog
+A small dog with bat-like ears.
+Great Dane
+One of the tallest dog breeds.
+Saint Bernard
+A huge dog that rescues people.
+Eskimo dog
+A fluffy dog from Arctic regions.
+malamute
+A large sled dog from Alaska.
+Siberian husky
+A medium sled dog with blue eyes.
+dalmatian
+A white dog with black spots.
+affenpinscher
+A small dog that looks like monkey.
+basenji
+A dog that doesn't bark.
+pug
+A small dog with wrinkled face.
+Leonberg
+A large dog with lion-like mane.
+Newfoundland
+A huge, gentle dog that swims well.
+Great Pyrenees
+A large white dog that guards sheep.
+Samoyed
+A fluffy white dog with smiling face.
+Pomeranian
+A tiny fluffy dog with fox face.
+chow
+A dog with blue tongue and mane.
+keeshond
+A fluffy dog with curled tail.
+Brabancon griffon
+A small dog with human-like expression.
+Pembroke
+A short-legged dog with fox face.
+Cardigan
+A long dog with short legs.
+toy poodle
+The smallest size of poodle.
+miniature poodle
+A medium-sized poodle.
+standard poodle
+The largest size of poodle.
+Mexican hairless
+A dog with no hair.
+timber wolf
+A large wild dog that lives forests.
+white wolf
+A wolf with white fur.
+red wolf
+A rare wolf with reddish fur.
+coyote
+A wild dog smaller than wolf.
+dingo
+A wild dog from Australia.
+dhole
+A wild dog from Asia.
+African hunting dog
+A wild dog with large ears.
+hyena
+A wild animal that laughs.
+red fox
+A wild animal with red fur.
+kit fox
+A small desert fox.
+Arctic fox
+A fox with white winter fur.
+grey fox
+A fox that can climb trees.
+tabby
+A cat with striped fur pattern.
+tiger cat
+A cat with tiger-like stripes.
+Persian cat
+A fluffy cat with flat face.
+Siamese cat
+A cat with pointed color pattern.
+Egyptian cat
+An ancient cat breed from Egypt.
+cougar
+A large wild cat from Americas.
+lynx
+A wild cat with tufted ears.
+leopard
+A spotted wild cat from Africa.
+snow leopard
+A spotted cat from Asian mountains.
+jaguar
+A spotted wild cat from Americas.
+lion
+A large wild cat with mane.
+tiger
+The largest wild cat with stripes.
+cheetah
+The fastest land animal.
+brown bear
+A large bear with brown fur.
+American black bear
+A medium-sized bear from North America.
+ice bear
+A white bear from Arctic.
+sloth bear
+A shaggy bear that eats insects.
+mongoose
+A small animal that fights snakes.
+meerkat
+A small animal that stands upright.
+Tiger beetle
+are speedy, predatory insects with large jaws and long legs.
+Ladybug
+are small, spotted beetles known for eating plant-damaging insects like aphids.
+Ground beetle
+are mostly nocturnal, flightless insects that live on the ground.
+Long-horned beetle
+are a diverse group of beetles recognized for their very long antennae.
+Leaf beetle
+are small, often colorful, plant-eating insects with varied feeding habits.
+Dung beetle
+are a type of beetle known for eating and rolling dung.
+Rhinoceros beetle
+are large beetles named for the horn-like projections on their head.
+Weevil
+are a type of beetle with an elongated snout, often considered pests.
+Fly
+are a common insect with two wings, known for a wide variety of species.
+Bee
+are flying insects known for their role as pollinators and for making honey.
+Ant
+are social insects that live in colonies and are known for their strong work ethic.
+Grasshopper
+are hopping insects with long hind legs, often found in fields.
+Cricket
+are jumping insects known for the loud chirping sound made by the males.
+Walking stick
+are insects that resemble twigs or leaves, camouflaging themselves from predators.
+Cockroach
+are fast-running insects, some of which are common household pests.
+Mantis
+are predatory insects with large forelegs held in a "praying" position.
+Cicada
+are large, winged insects known for the loud, buzzing sound made by the males.
+Leafhopper
+are small, jumping insects that feed on the sap of plants.
+Lacewing
+are delicate insects with a lace-like pattern on their wings.
+Dragonfly
+are large, fast-flying insects with long bodies and two pairs of strong wings.
+Damselfly
+are slender insects similar to dragonflies, but with wings that fold back when at rest.
+Admiral
+are a group of butterflies known for their distinct wing patterns.
+Ringlet
+are a type of butterfly with a series of ring-like spots on their wings.
+Monarch
+are a type of butterfly known for their long annual migration.
+Cabbage butterfly
+are a common butterfly species with white or yellow wings.
+Sulphur butterfly
+are a group of butterflies that are typically yellow or orange in color.
+Lycaenid
+are a family of small butterflies, often called "blues" or "coppers".
+Starfish
+are marine animals with multiple arms that radiate from a central disk.
+Sea urchin
+are small, spiny marine animals that live on the seabed.
+Sea cucumber
+are a type of marine animal with a soft, elongated body.
+Wood rabbit
+are a species of rabbit found in forests and woodlands.
+Hare
+are a type of mammal similar to a rabbit, but with longer ears and legs.
+Angora
+are a breed of rabbit, goat, or cat known for their long, soft fur.
+Hamster
+are small rodents often kept as household pets.
+Porcupine
+are rodents known for their coat of sharp spines or quills.
+Fox squirrel
+are a large species of North American squirrel.
+Marmot
+are large, burrowing rodents that live in mountainous areas.
+Beaver
+are large rodents known for building dams and lodges in rivers.
+Guinea pig
+are a species of rodent often kept as a pet.
+Sorrel
+are a type of horse with a reddish-brown coat.
+Zebra
+are a wild horse from Africa with distinctive black and white stripes.
+Hog
+are a type of wild or domestic pig.
+Wild boar
+are a species of wild pig with a bristly coat and tusks.
+Warthog
+are a type of wild pig from Africa with prominent tusks.
+Hippopotamus
+are a large, semi-aquatic mammal native to Africa.
+Ox
+are a domesticated bovine animal used for work.
+Water buffalo
+are a large bovine species from Asia.
+Bison
+are a large, hoofed mammal with a shaggy coat and a hump.
+Ram
+are an uncastrated male sheep.
+Bighorn
+are a species of wild sheep with large, curved horns.
+Ibex
+are a type of wild goat with long, curved horns.
+Hartebeest
+are a large type of African antelope with a long face.
+Impala
+are a medium-sized African antelope known for their leaping ability.
+Gazelle
+are a graceful type of antelope known for their speed.
+Arabian camel
+are a large camel with a single hump, native to the Arabian peninsula.
+Llama
+are a South American camelid known for their use as a pack animal.
+Weasel
+are a small, slender carnivorous mammal.
+Mink
+are a semi-aquatic mammal in the weasel family valued for its fur.
+Polecat
+are a type of weasel with a strong odor.
+Black-footed ferret
+are a North American ferret known for their dark legs.
+Otter
+are a semi-aquatic mammal with a sleek body and webbed feet.
+Skunk
+are a mammal known for its strong, foul-smelling spray.
+Badger
+are a burrowing mammal with a distinctive striped face.
+Armadillo
+are a mammal known for its bony, plate-like armor.
+Three-toed sloth
+are a slow-moving tree-dwelling mammal with three claws on each foot.
+Orangutan
+are a type of great ape with long arms and reddish-brown hair.
+Gorilla
+are a large, powerful great ape native to the forests of Africa.
+Chimpanzee
+are a type of great ape known for its high intelligence.
+Gibbon
+are a small, tree-dwelling ape known for swinging through trees.
+Siamang
+are a type of gibbon known for their large throat sac.
+Guenon
+are a type of monkey found in Africa.
+Patas
+are a type of monkey known for their reddish coat and speed.
+Baboon
+are a large, ground-dwelling monkey from Africa and Arabia.
+Macaque
+are a type of monkey known for their long tails.
+Langur
+are a type of monkey from Asia with long limbs and tail.
+Colobus
+are a type of monkey from Africa known for their black and white coats.
+Proboscis monkey
+are a type of monkey with a large, fleshy nose.
+Marmoset
+are a small monkey with a silky coat and long tail.
+Capuchin
+are a type of New World monkey with a tuft of hair on their head.
+Howler monkey
+are a type of monkey known for their very loud calls.
+Titi (monkey)
+are a small monkey with a long tail and a shaggy coat.
+Spider monkey
+are a type of monkey with very long limbs and a prehensile tail.
+Squirrel monkey
+are a small monkey with a long tail and a squirrel-like appearance.
+Madagascar cat
+are a mongoose-like carnivore from Madagascar.
+Indri
+are a large, tree-dwelling lemur from Madagascar.
+Indian elephant
+are a large mammal from Asia with smaller ears than the African elephant.
+African elephant
+are a large mammal from Africa with very large ears.
+Lesser panda
+are a small, reddish-brown mammal native to the eastern Himalayas.
+Giant panda
+are a large bear native to China with distinctive black and white markings.
+Barracouta
+are a type of predatory fish with a long, slender body.
+Eel
+are a snake-like fish with a long, slender body.
+Coho
+are a species of salmon found in the Pacific Ocean.
+Rock beauty
+are a colorful species of marine angelfish.
+Anemone fish
+are a type of fish that lives in a symbiotic relationship with sea anemones.
+Sturgeon
+are a large, ancient fish known for producing roe (caviar).
+Gar
+are a primitive fish with a long, narrow snout and sharp teeth.
+Lionfish
+are a venomous fish known for their long, spiny fins.
+Puffer
+are a type of fish that can inflate their bodies like a balloon.
+Abacus
+is a tool for calculation that uses beads on rods.
+Abaya
+is a loose-fitting garment worn by some women in Muslim countries.
+Academic gown
+is a robe worn by scholars and students for formal occasions.
+Accordion
+is a musical instrument with bellows and a keyboard or buttons.
+Acoustic guitar
+is a stringed instrument that uses its hollow body to amplify sound.
+Aircraft carrier
+is a large warship that serves as a floating airbase.
+Airliner
+is a large passenger airplane used for commercial flights.
+Airship
+is a self-propelled balloon with a large, rigid frame.
+Altar
+is a table or platform used for religious rituals.
+Ambulance
+is a vehicle equipped for transporting sick or injured people.
+Amphibian
+is a type of vehicle that can operate on both land and water.
+Analog clock
+is a timepiece with hands that move around a numbered face.
+Apiary
+is a place where beehives are kept, also known as a bee yard.
+Apron
+is a protective garment worn over clothing, especially when cooking.
+Ashcan
+is a metal container for holding ashes from a fire.
+Assault rifle
+is a military firearm capable of both automatic and semi-automatic fire.
+Backpack
+is a bag worn on the back with straps over the shoulders.
+Bakery
+is a place where bread and other baked goods are made and sold.
+Balance beam
+is a long, narrow beam used in gymnastics for balancing exercises.
+Balloon
+is a flexible bag filled with gas, used for decoration or flight.
+Ballpoint
+is a pen that dispenses ink over a small metal ball at its point.
+Band Aid
+is a brand name for a small adhesive bandage.
+Banjo
+is a stringed musical instrument with a round body and a long neck.
+Bannister
+is the handrail along a staircase.
+Barbell
+is a long bar with weights on each end, used for weightlifting.
+Barber chair
+is a specialized, reclining chair for a customer at a barbershop.
+Barbershop
+is a place where men get their hair cut and beards trimmed.
+Barn
+is a large farm building used for storing hay or sheltering animals.
+Barometer
+is a scientific instrument used for measuring atmospheric pressure.
+Barrel
+is a cylindrical container, traditionally made of wood.
+Barrow
+is a small cart with one or two wheels for carrying loads.
+Baseball
+is a game played with a bat and ball, or the ball itself.
+Basketball
+is a game played by two teams, or the ball used in the game.
+Bassinet
+is a basket-like bed for an infant.
+Bassoon
+is a large woodwind instrument with a low-pitched sound.
+Bathing cap
+is a close-fitting cap worn on the head for swimming.
+Bath towel
+is a large towel used for drying the body after a bath.
+Bathtub
+is a large tub for bathing, usually found in a bathroom.
+Beach wagon
+is a cart with a low bed for hauling things on a beach.
+Beacon
+is a light or fire used to guide or warn.
+Beaker
+is a simple glass container used in a laboratory.
+Bearskin
+is a ceremonial hat made from the fur of a bear.
+Beer bottle
+is a glass container designed to hold beer.
+Beer glass
+is a glass specifically made for serving beer.
+Bell cote
+is a small framework on a roof for a bell.
+Bib
+is a piece of cloth worn under the chin to protect clothing.
+Bicycle-built-for-two
+is a tandem bicycle designed for two riders.
+Bikini
+is a two-piece swimsuit for women.
+Binder
+is a folder with rings for holding punched papers.
+Binoculars
+are a pair of tubes with lenses for magnifying distant objects.
+Birdhouse
+is an artificial shelter for birds to nest in.
+Boathouse
+is a building on a shore used to store boats.
+Bobsled
+is a vehicle on runners, used for racing down an ice track.
+Bolo tie
+is a type of necktie consisting of a cord with a decorative clasp.
+Bonnet
+is a type of hat, often tied under the chin.
+Bookcase
+is a piece of furniture with shelves for holding books.
+Bookshop
+is a store where books are sold.
+Bottletop
+is the cap used to seal a bottle.
+Bow
+is a weapon for shooting arrows or a decorative knot.
+Bow tie
+is a necktie in the form of a bow.
+Brass
+is a metal alloy of copper and zinc.
+Brassiere
+is an undergarment worn by women to support the breasts.
+Breakwater
+is a barrier built in the sea to protect a harbor.
+Breastplate
+is a piece of armor covering the chest.
+Broom
+is a tool with bristles on a long handle for sweeping.
+Bucket
+is a round, open container with a handle for carrying liquids.
+Buckle
+is a fastener for a belt or strap.
+Bulletproof vest
+is a type of body armor designed to protect against bullets.
+Bullet train
+is a high-speed passenger train.
+Butcher shop
+is a store that sells meat.
+Cab
+is a taxi or the driver's compartment of a truck.
+Caldron
+is a large metal pot for cooking over a fire.
+Candle
+is a block of wax with a wick, used for light.
+Cannon
+is a large gun on wheels, used in warfare.
+Canoe
+is a light boat propelled by paddles.
+Can opener
+is a tool for opening metal cans.
+Cardigan
+is a knitted sweater that opens in the front.
+Car mirror
+is a mirror on a car for the driver to see behind them.
+Carousel
+is a merry-go-round with wooden horses for riding.
+Carpenter's kit
+is a collection of tools used by a carpenter.
+Carton
+is a box or container made of cardboard or plastic.
+Car wheel
+is a wheel on an automobile.
+Cash machine
+is an automated teller machine (ATM) for banking.
+Cassette
+is a small plastic case containing magnetic tape for recording.
+Cassette player
+is an electronic device for playing cassette tapes.
+Castle
+is a large, fortified building from the medieval period.
+Catamaran
+is a boat with two parallel hulls.
+CD player
+is an electronic device for playing compact discs.
+Cello
+is a large stringed instrument of the violin family.
+Cellular telephone
+is a mobile phone for making calls over a cellular network.
+Chain
+is a series of connected metal links.
+Chainlink fence
+is a fence made from a series of woven wire links.
+Chain mail
+is a type of armor made of small metal rings.
+Chain saw
+is a motorized saw with a chain of teeth.
+Chest
+is a large box with a lid, used for storage.
+Chiffonier
+is a tall, narrow chest of drawers.
+Chime
+is a bell or a musical sound made by a bell.
+China cabinet
+is a cabinet with glass doors for displaying fine china.
+Christmas stocking
+is a large sock hung up for Santa to fill with presents.
+Church
+is a building used for Christian worship.
+Cinema
+is a movie theater or a movie itself.
+Cleaver
+is a large, heavy knife used for cutting meat.
+Cliff dwelling
+is a house built into a cliff face.
+Cloak
+is a loose outer garment without sleeves.
+Clog
+is a shoe with a thick wooden sole.
+Cocktail shaker
+is a container for mixing alcoholic drinks.
+Coffee mug
+is a large cup with a handle for drinking coffee.
+Coffeepot
+is a container for brewing and serving coffee.
+Coil
+is a series of loops, especially of wire or rope.
+Combination lock
+is a lock that opens with a specific sequence of numbers.
+Computer keyboard
+is a set of keys for typing on a computer.
+Confectionery
+is a store that sells candy and sweet treats.
+Container ship
+is a large cargo ship for transporting goods in containers.
+Convertible
+is a car with a roof that can be folded down.
+Corkscrew
+is a tool for pulling corks from bottles.
+Cornet
+is a brass instrument similar to a trumpet.
+Cowboy boot
+is a type of boot with a high heel and pointed toe.
+Cowboy hat
+is a high-crowned hat with a wide brim.
+Cradle
+is a baby bed that rocks back and forth.
+Crane (machine)
+is a large machine with a long arm, used for lifting.
+Crash helmet
+is a hard hat worn to protect the head in a crash.
+Crate
+is a wooden container for transporting goods.
+Crib
+is a small bed with high sides for an infant.
+Crock Pot
+is a brand name for a slow cooker.
+Croquet ball
+is a hard wooden ball used in the game of croquet.
+Crutch
+is a support used to assist a person with an injury.
+Cuirass
+is a piece of armor covering the torso.
+Dam
+is a barrier built across a river to hold back water.
+Desk
+is a piece of furniture with a flat top for writing or working.
+Desktop computer
+is a computer designed for use on a desk.
+Dial telephone
+is a telephone with a rotating dial for making calls.
+Diaper
+is an absorbent garment worn by a baby.
+Digital clock
+is a clock that displays time in numbers.
+Digital watch
+is a watch that displays time in numbers.
+Dining table
+is a table used for eating meals.
+Dishrag
+is a cloth for washing dishes.
+Dishwasher
+is a machine for washing dishes automatically.
+Disk brake
+is a type of brake that uses pads to squeeze a rotating disk.
+Dock
+is a structure built out from a shore into a body of water.
+Dogsled
+is a sled pulled by dogs, used for transportation on snow.
+Dome
+is a rounded roof with a circular base.
+Doormat
+is a mat placed at a doorway to clean shoes.
+Drilling platform
+is a large offshore structure for drilling for oil.
+Drum
+is a musical instrument played by striking a stretched membrane.
+Drumstick
+is a stick for playing a drum.
+Dumbbell
+is a short bar with weights on each end, for exercise.
+Dutch oven
+is a heavy pot with a tight-fitting lid for cooking.
+Electric fan
+is an electrical machine with rotating blades for moving air.
+Electric guitar
+is a guitar that uses a pickup to convert vibrations into electrical signals.
+Electric locomotive
+is a train engine powered by electricity.
+Entertainment center
+is a piece of furniture for holding a television and other electronics.
+Envelope
+is a flat paper container for a letter.
+Espresso maker
+is a machine for brewing espresso coffee.
+Face powder
+is a cosmetic powder applied to the face.
+Feather boa
+is a scarf made of feathers.
+File
+is a tool with a rough surface for shaping things.
+Fireboat
+is a boat equipped to fight fires on water or at docks.
+Fire engine
+is a vehicle with equipment for putting out fires.
+Fire screen
+is a screen placed in front of a fireplace to protect from sparks.
+Flagpole
+is a pole for flying a flag.
+Flute
+is a wind instrument played by blowing across an opening.
+Folding chair
+is a portable chair that can be folded flat.
+Football helmet
+is a protective helmet worn by a football player.
+Forklift
+is a small vehicle with two forks for lifting and moving heavy loads.
+Fountain
+is a structure that sprays water for decoration.
+Fountain pen
+is a pen that has a nib and an internal ink reservoir.
+Four-poster
+is a bed with four tall posts at the corners.
+Freight car
+is a railcar used for transporting goods.
+French horn
+is a brass instrument with a coiled tube and a wide bell.
+Frying pan
+is a flat, shallow pan with a handle for frying food.
+Fur coat
+is a coat made from the fur of an animal.
+Garbage truck
+is a truck designed for collecting and transporting trash.
+Gasmask
+is a mask worn to protect the face and lungs from toxic gases.
+Gas pump
+is a machine for dispensing fuel into a vehicle.
+Goblet
+is a drinking glass with a stem and base.
+Go-kart
+is a small, low-slung, motorized racing vehicle.
+Golf ball
+is a small, hard ball used in the game of golf.
+Golfcart
+is a small motorized cart used for transporting golfers and their clubs.
+Gondola
+is a long, narrow boat used on the canals of Venice.
+Gong
+is a metal disk that produces a deep sound when struck.
+Gown
+is a long, formal dress.
+Grand piano
+is a large piano with horizontal strings and a lid.
+Greenhouse
+is a building with glass walls for growing plants.
+Grille
+is a network of bars or wires forming a screen.
+Grocery store
+is a store that sells food and household supplies.
+Guillotine
+is a machine with a heavy blade for beheading.
+Hair slide
+is a clip or barrette for holding hair in place.
+Hair spray
+is a product sprayed on hair to keep it in place.
+Half track
+is a military vehicle with wheels in the front and tracks in the back.
+Hammer
+is a tool with a heavy head for driving nails.
+Hamper
+is a large basket with a lid, used for dirty laundry.
+Hand blower
+is a tool that uses forced air, like a hair dryer.
+Hand-held computer
+is a small, portable computer that can be held in one hand.
+Handkerchief
+is a small cloth for wiping the nose.
+Hard disc
+is a storage device for data in a computer.
+Harmonica
+is a small wind instrument played by blowing and drawing air.
+Harp
+is a large stringed instrument with vertical strings.
+Harvester
+is a machine for harvesting crops.
+Hatchet
+is a small ax with a short handle.
+Holster
+is a case for a handgun, worn on the body.
+Home theater
+is a system of electronic components for a movie-watching experience.
+Honeycomb
+is a structure of wax cells built by bees to store honey.
+Hook
+is a curved piece of metal used for catching, holding, or pulling.
+Hoopskirt
+is a light frame of hoops worn under a woman's skirt.
+Horizontal bar
+is a gymnastic apparatus that consists of a single horizontal bar.
+Horse cart
+is a cart or carriage pulled by a horse.
+Hourglass
+is a device that measures time by the flow of sand.
+iPod
+is a brand of portable music player made by Apple.
+Iron
+is a tool with a flat, heated surface for smoothing clothes.
+Jack-o'-lantern
+is a carved pumpkin with a light inside, used as a decoration.
+Jean
+are trousers made from denim fabric.
+Jeep
+is a brand of sturdy vehicle designed for rough terrain.
+Jersey
+is a knitted garment, often a sports shirt.
+Jigsaw puzzle
+is a puzzle made of interlocking pieces that form a picture.
+Jinrikisha
+is a small, two-wheeled carriage pulled by a person.
+Joystick
+is a lever used to control movement in video games.
+Kimono
+is a traditional Japanese garment with wide sleeves.
+Knee pad
+is a protective pad worn over the knee.
+Knot
+is an interlacing of rope or string.
+Lab coat
+is a white coat worn by scientists to protect clothing.
+Ladle
+is a large, deep spoon with a long handle.
+Lampshade
+is a cover placed over a lightbulb to soften light.
+Laptop
+is a portable computer with a screen and keyboard.
+Lawn mower
+is a machine for cutting grass.
+Lens cap
+is a protective cover for the lens of a camera.
+Letter opener
+is a small knife-like tool for opening envelopes.
+Library
+is a building or room containing a collection of books.
+Lifeboat
+is a small boat carried on a ship for use in an emergency.
+Lighter
+is a device for creating a flame.
+Limousine
+is a large, luxurious car, often with a chauffeur.
+Liner
+is a large passenger ship.
+Lipstick
+is a cosmetic for coloring the lips.
+Loafer
+is a type of leather slip-on shoe.
+Lotion
+is a liquid cosmetic applied to the skin.
+Loudspeaker
+is a device that converts electrical signals into sound.
+Loupe
+is a small magnifying glass, often used by jewelers.
+Lumbermill
+is a place where timber is sawn into planks.
+Magnetic compass
+is a device with a needle that points north.
+Mailbag
+is a bag for carrying mail.
+Mailbox
+is a box for receiving mail.
+Maillot
+is a one-piece swimsuit.
+Maillot tank suit
+is a one-piece swimsuit.
+Manhole cover
+is a removable plate that covers the opening of a manhole.
+Maraca
+is a rattle-like percussion instrument.
+Marimba
+is a large xylophone with wooden bars.
+Mask
+is a covering for the face to conceal or protect.
+Matchstick
+is a small stick with a chemical tip that ignites when struck.
+Maypole
+is a tall pole decorated with ribbons, used for dancing.
+Maze
+is a complex network of paths designed as a puzzle.
+Measuring cup
+is a cup used to measure ingredients in cooking.
+Medicine chest
+is a small cabinet for storing medicine and first-aid supplies.
+Megalith
+is a large stone used in ancient monuments.
+Microphone
+is a device for converting sound waves into electrical energy.
+Microwave
+is an oven that cooks food using electromagnetic waves.
+Military uniform
+is a standardized set of clothing for a soldier.
+Milk can
+is a large metal container for transporting milk.
+Minibus
+is a small bus designed for a small number of passengers.
+Miniskirt
+is a very short skirt.
+Minivan
+is a vehicle designed for carrying passengers, with a sliding door.
+Missile
+is a weapon that is self-propelled after launch.
+Mitten
+is a glove with a single section for all four fingers.
+Mixing bowl
+is a bowl used for mixing ingredients.
+Mobile home
+is a large trailer used as a permanent residence.
+Model T
+was a car produced by Ford from 1908 to 1927.
+Modem
+is a device that allows a computer to access the internet.
+Monastery
+is a building where monks live together.
+Monitor
+is a display screen used with a computer.
+Moped
+is a light motorcycle with a small engine.
+Mortar
+is a heavy gun that fires shells at a high angle.
+Mortarboard
+is a cap with a square, flat top, worn at graduations.
+Mosque
+is a Muslim place of worship.
+Mosquito net
+is a fine net used to protect against mosquitoes.
+Motor scooter
+is a small motorcycle with a step-through frame.
+Mountain bike
+is a bicycle designed for off-road cycling.
+Mountain tent
+is a tent designed for use in mountainous conditions.
+Mouse
+is a small handheld device for controlling a computer cursor.
+Mousetrap
+is a trap for catching mice.
+Moving van
+is a large truck for transporting household goods.
+Muzzle
+is a device placed over an animal's snout to prevent biting.
+Nail
+is a small metal spike for fastening things together.
+Neck brace
+is a medical device used to support the neck.
+Necklace
+is a piece of jewelry worn around the neck.
+Nipple
+is the small projection from a breast or bottle.
+Notebook
+is a book of blank pages for writing notes.
+Obelisk
+is a tall, four-sided pillar that tapers to a pyramid shape.
+Oboe
+is a woodwind instrument with a double reed.
+Ocarina
+is a small wind instrument with a closed body.
+Odometer
+is a device for measuring the distance traveled by a vehicle.
+Oil filter
+is a device that cleans oil in an engine.
+Organ
+is a large keyboard instrument with pipes.
+Oscilloscope
+is a device that displays electrical signals as waveforms.
+Overskirt
+is a skirt worn over another skirt.
+Oxcart
+is a cart pulled by an ox.
+Oxygen mask
+is a mask used for breathing in oxygen.
+Packet
+is a small container or package.
+Paddle
+is a short oar used to propel a canoe.
+Paddlewheel
+is a large wheel with paddles, used to propel a boat.
+Padlock
+is a portable lock with a U-shaped shackle.
+Paintbrush
+is a brush used for applying paint.
+Pajama
+are loose-fitting clothes worn for sleeping.
+Palace
+is a large, impressive building, often the home of a monarch.
+Panpipe
+is a musical instrument made of a series of pipes.
+Paper towel
+is an absorbent paper used for wiping and drying.
+Parachute
+is a device used to slow a person's fall from a height.
+Parallel bars
+are a gymnastic apparatus consisting of two parallel bars.
+Park bench
+is a long seat in a park.
+Parking meter
+is a machine that takes money for a parking space.
+Passenger car
+is a railway car for carrying people.
+Patio
+is a paved outdoor area for dining or recreation.
+Pay-phone
+is a telephone that requires payment to make a call.
+Pedestal
+is the base or support of a statue or column.
+Pencil box
+is a container for holding pencils and other stationery.
+Pencil sharpener
+is a tool for sharpening pencils.
+Perfume
+is a scented liquid applied to the body.
+Petri dish
+is a shallow glass dish used for growing cultures.
+Photocopier
+is a machine for making paper copies of documents.
+Pick
+is a pointed tool for breaking up hard surfaces.
+Pickelhaube
+is a spiked helmet worn in the 19th and 20th centuries.
+Picket fence
+is a fence made of upright planks called pickets.
+Pickup
+is a small truck with an open back for hauling.
+Pier
+is a structure built out into the water.
+Piggy bank
+is a coin bank in the shape of a pig.
+Pill bottle
+is a small container for holding pills.
+Pillow
+is a soft cushion used to support the head.
+Ping-pong ball
+is a light, hollow ball used in table tennis.
+Pinwheel
+is a toy with spinning blades on a stick.
+Pirate
+is a person who robs ships at sea.
+Pitcher
+is a large jug with a handle for pouring liquids.
+Plane
+is a tool with a blade for smoothing wood.
+Planetarium
+is a building with a domed ceiling for projecting images of stars.
+Plastic bag
+is a bag made of thin, flexible plastic.
+Plate rack
+is a frame for holding plates.
+Plow
+is a tool for tilling soil before planting.
+Plunger
+is a tool with a rubber suction cup for clearing drains.
+Polaroid camera
+is a camera that produces a developed photograph instantly.
+Pole
+is a long, slender piece of wood or metal.
+Police van
+is a van used by the police for transporting people.
+Poncho
+is a large piece of cloth with a hole for the head.
+Pool table
+is a table with six pockets, used for playing billiards.
+Pop bottle
+is a bottle for holding soda pop.
+Pot
+is a round container for cooking or holding plants.
+Potter's wheel
+is a machine used for shaping clay.
+Power drill
+is a tool with a motor for drilling holes.
+Prayer rug
+is a small mat used by Muslims for prayer.
+Printer
+is a machine for printing text or images on paper.
+Prison
+is a building where people are kept as punishment.
+Projectile
+is an object propelled through the air, like a bullet.
+Projector
+is a machine that projects images onto a screen.
+Puck
+is a hard rubber disk used in ice hockey.
+Punching bag
+is a heavy bag for practicing punches.
+Purse
+is a small bag used for carrying money and personal items.
+Quill
+is a pen made from a feather.
+Quilt
+is a warm covering made of two layers of cloth with padding.
+Racer
+is a person or vehicle that competes in a race.
+Racket
+is a bat with a stringed frame, used in tennis.
+Radiator
+is a device that heats a room.
+Radio
+is a device for receiving radio signals.
+Radio telescope
+is a dish antenna used for observing radio waves from space.
+Rain barrel
+is a barrel for collecting rainwater.
+Recreational vehicle
+is a large motor vehicle for living in.
+Reel
+is a cylindrical device on which film or tape is wound.
+Reflex camera
+is a camera with a mirror that reflects the image to the viewfinder.
+Refrigerator
+is an appliance for keeping food and drinks cold.
+Remote control
+is a handheld device for controlling an electronic appliance.
+Restaurant
+is a place where meals are sold and served.
+Revolver
+is a handgun with a rotating cylinder holding multiple rounds.
+Rifle
+is a long gun fired from the shoulder.
+Rocking chair
+is a chair mounted on rockers, allowing it to rock.
+Rotisserie
+is a cooking device with a rotating spit for roasting meat.
+Rubber eraser
+is a piece of rubber for removing pencil marks.
+Rugby ball
+is an oval-shaped ball used in the game of rugby.
+Rule
+is a straight piece of wood or plastic used for measuring.
+Running shoe
+is a shoe designed for running.
+Safe
+is a strong box for storing valuables.
+Safety pin
+is a pin with a guard to protect the point.
+Saltshaker
+is a small container for sprinkling salt.
+Sandal
+is a type of open shoe with straps.
+Sarong
+is a garment consisting of a long piece of cloth wrapped around the body.
+Sax
+is a saxophone, a musical instrument with a flared metal tube.
+Scabbard
+is a sheath for a sword or knife.
+Scale
+is a device for weighing things.
+School bus
+is a large vehicle used for transporting students.
+Schooner
+is a type of sailing ship with two or more masts.
+Scoreboard
+is a large board for displaying the score of a game.
+Screen
+is a flat surface on which an image is projected.
+Screw
+is a small fastener with a threaded shaft.
+Screwdriver
+is a tool for driving screws.
+Seat belt
+is a strap that holds a person in a seat.
+Sewing machine
+is a machine for sewing cloth.
+Shield
+is a piece of armor carried for protection.
+Shoe shop
+is a store that sells shoes.
+Shoji
+are traditional Japanese sliding doors with translucent paper.
+Shopping basket
+is a basket used for carrying groceries.
+Shopping cart
+is a cart with a basket, used for carrying groceries.
+Shovel
+is a tool with a broad blade for moving loose material.
+Shower cap
+is a waterproof cap worn to keep hair dry in the shower.
+Shower curtain
+is a curtain used to contain water in a shower.
+Ski
+are long runners worn on the feet for gliding on snow.
+Ski mask
+is a mask that covers the head, face, and neck.
+Sleeping bag
+is a warm bag for sleeping outdoors.
+Slide rule
+is a mechanical analog computer for calculation.
+Sliding door
+is a door that opens by sliding horizontally.
+slot
+A narrow opening for inserting coins or cards.
+snorkel
+A tube for breathing while swimming underwater.
+snowmobile
+A vehicle with skis for traveling on snow.
+snowplow
+A vehicle that pushes snow off roads.
+soap dispenser
+A container that releases liquid soap.
+soccer ball
+A round ball used in soccer games.
+sock
+A cloth covering worn on feet.
+solar dish
+A curved dish that collects sun energy.
+sombrero
+A wide-brimmed hat from Mexico.
+soup bowl
+A deep dish for eating soup.
+space bar
+The long key on keyboard for spaces.
+space heater
+A small device that warms rooms.
+space shuttle
+A reusable spacecraft that goes to space.
+spatula
+A flat tool for flipping food.
+speedboat
+A fast boat for racing or recreation.
+spider web
+A sticky trap made by spiders.
+spindle
+A rod used for spinning thread.
+sports car
+A fast car built for performance.
+spotlight
+A bright light that focuses beam.
+stage
+A raised platform for performances.
+steam locomotive
+A train powered by steam engine.
+steel arch bridge
+A bridge made with curved steel structure.
+steel drum
+A musical instrument made from metal barrel.
+stethoscope
+A medical tool for listening to heartbeats.
+stole
+A long scarf worn over shoulders.
+stone wall
+A wall built from stacked stones.
+stopwatch
+A timer for measuring short time periods.
+stove
+An appliance for cooking food with heat.
+strainer
+A bowl with holes for draining liquid.
+streetcar
+A train that runs on city streets.
+stretcher
+A bed for carrying injured people.
+studio couch
+A couch that converts into bed.
+stupa
+A dome-shaped Buddhist religious building.
+submarine
+A boat that travels underwater.
+suit
+Matching jacket and pants worn together.
+sundial
+A device that tells time using shadows.
+sunglasses
+Tinted glasses that protect from sun.
+sunglasses
+Tinted glasses worn by a person that protect eyes from sun.
+sunscreen
+A cream that protects skin from sun.
+suspension bridge
+A bridge hung from cables and towers.
+swab
+A cotton stick for cleaning.
+sweatshirt
+A warm pullover shirt with long sleeves.
+swimming trunks
+Shorts worn by men for swimming.
+swing
+A hanging seat that moves back forth.
+switch
+A device for turning electricity on off.
+syringe
+A medical tool for giving injections.
+table lamp
+A light that sits on table.
+tank
+A heavy armored military vehicle.
+tape player
+A machine that plays audio cassettes.
+teapot
+A container for brewing and pouring tea.
+teddy
+A stuffed toy bear for children.
+television
+A device that shows moving pictures.
+tennis ball
+A fuzzy yellow ball for tennis.
+thatch
+A roof covering made from dried grass.
+theater curtain
+A large fabric that covers stage.
+thimble
+A cap worn on finger while sewing.
+thresher
+A machine that separates grain from plants.
+throne
+A special chair for kings or queens.
+tile roof
+A roof covered with ceramic tiles.
+toaster
+An appliance that browns bread slices.
+tobacco shop
+A store that sells cigarettes and cigars.
+toilet seat
+The part you sit on toilet.
+torch
+A burning stick used for light.
+totem pole
+A tall wooden pole with carved figures.
+tow truck
+A truck that pulls broken vehicles.
+toyshop
+A store that sells children's toys.
+tractor
+A vehicle used for farming work.
+trailer truck
+A large truck with detachable cargo section.
+tray
+A flat surface for carrying items.
+trench coat
+A long waterproof coat with belt.
+tricycle
+A three-wheeled bicycle for children.
+trimaran
+A boat with three parallel hulls.
+tripod
+A three-legged stand for cameras.
+triumphal arch
+A decorative archway celebrating victories.
+trolleybus
+A bus powered by overhead electric wires.
+trombone
+A brass musical instrument with sliding tube.
+tub
+A container for holding water.
+turnstile
+A rotating gate that counts people entering.
+typewriter keyboard
+The keys on old writing machine.
+umbrella
+A collapsible shelter from rain or sun.
+unicycle
+A one-wheeled bicycle for balancing.
+upright
+A vertical piano that stands tall.
+vacuum
+A machine that sucks up dirt.
+vase
+A container for holding flowers.
+vault
+A secure room for storing valuables.
+velvet
+A soft fabric with fuzzy surface.
+vending machine
+A machine that sells snacks for coins.
+vestment
+Special clothing worn by religious leaders.
+viaduct
+A long bridge across valley.
+violin
+A four-stringed musical instrument with bow.
+volleyball
+A game with ball hit over net.
+waffle iron
+A device that makes patterned pancakes.
+wall clock
+A timepiece that hangs on wall.
+wallet
+A small case for carrying money.
+wardrobe
+A large closet for storing clothes.
+warplane
+A military airplane used for fighting.
+washbasin
+A bowl-shaped sink for washing hands.
+washer
+A machine that cleans clothes.
+water bottle
+A container for drinking water.
+water jug
+A large container for pouring water.
+water tower
+A tall structure that stores water.
+whiskey jug
+A container for storing alcoholic spirits.
+whistle
+A device that makes sharp sound.
+wig
+Fake hair worn on head.
+window screen
+A mesh that keeps insects out.
+window shade
+A cover that blocks light.
+Windsor tie
+A wide necktie with diagonal stripes.
+wine bottle
+A glass container for alcoholic grape drink.
+wing
+The part of airplane that provides lift.
+wok
+A round-bottomed pan for stir-frying.
+wooden spoon
+A cooking utensil made from wood.
+wool
+Soft fiber from sheep used clothing.
+worm fence
+A zigzag fence made from logs.
+wreck
+The remains of destroyed vehicle.
+yawl
+A two-masted sailing boat.
+yurt
+A round tent used by nomads.
+web site
+A collection of internet pages.
+comic book
+A book with stories told pictures.
+crossword puzzle
+A word game with intersecting clues.
+street sign
+A sign that shows street names.
+traffic light
+A signal that controls vehicle movement.
+book jacket
+The paper cover on hardcover book.
+menu
+A list of food available restaurant.
+plate
+A flat dish for serving food.
+guacamole
+A dip made from mashed avocados.
+consomme
+A clear, concentrated soup broth.
+hot pot
+A cooking method with boiling broth.
+trifle
+A layered dessert with cake and cream.
+ice cream
+A frozen dessert made with milk.
+ice lolly
+A frozen treat on stick.
+French loaf
+A long, crusty bread from France.
+bagel
+A ring-shaped bread with hole.
+pretzel
+A twisted, salty bread snack.
+cheeseburger
+A hamburger with cheese added.
+hotdog
+A sausage served in bun.
+mashed potato
+Potatoes crushed into smooth paste.
+head cabbage
+A round vegetable with layered leaves.
+broccoli
+A green vegetable with tree-like florets.
+cauliflower
+A white vegetable with clustered florets.
+zucchini
+A green summer squash vegetable.
+spaghetti squash
+A squash with stringy flesh.
+acorn squash
+A small winter squash shaped acorn.
+butternut squash
+A tan-colored winter squash with neck.
+cucumber
+A long green vegetable for salads.
+artichoke
+A green vegetable with layered leaves.
+bell pepper
+A colorful sweet pepper vegetable.
+cardoon
+A vegetable related to artichoke.
+mushroom
+A fungus that grows from ground.
+Granny Smith
+A green apple variety that's tart.
+strawberry
+A red berry with seeds outside.
+orange
+A round citrus fruit with peel.
+lemon
+A yellow citrus fruit that's sour.
+fig
+A sweet fruit with seeds inside.
+pineapple
+A tropical fruit with spiky skin.
+banana
+A yellow curved fruit with peel.
+jackfruit
+A large tropical fruit with bumpy skin.
+custard apple
+A sweet tropical fruit with scales.
+pomegranate
+A red fruit with many seeds inside.
+hay
+Dried grass used for animal food.
+carbonara
+A pasta dish with eggs and cheese.
+chocolate sauce
+A sweet brown topping for desserts.
+dough
+A mixture of flour and water.
+meat loaf
+Ground meat shaped into loaf.
+pizza
+A flat bread with toppings.
+potpie
+A pie filled with meat vegetables.
+burrito
+A flour tortilla wrapped around filling.
+red wine
+An alcoholic drink made from grapes.
+espresso
+A strong coffee served in shots.
+cup
+A small container for drinking.
+eggnog
+A creamy holiday drink with eggs.
+alp
+A high mountain peak.
+bubble
+A thin sphere filled with air.
+cliff
+A steep rock face by water.
+coral reef
+An underwater structure made by animals.
+geyser
+A hot spring that shoots water.
+lakeside
+The area next to lake.
+promontory
+A high point of land water.
+sandbar
+A ridge of sand in water.
+seashore
+The land along edge of ocean.
+valley
+A low area between mountains.
+volcano
+A mountain that erupts lava.
+ballplayer
+A person who plays ball sports.
+groom
+A man getting married.
+scuba diver
+A person who swims with equipment.
+rapeseed
+A yellow flowering plant for oil.
+daisy
+A white flower with yellow center.
+yellow lady's slipper
+A yellow orchid shaped like shoe.
+corn
+A tall plant with yellow kernels.
+acorn
+A nut from oak tree.
+hip
+The seed pod of rose plant.
+buckeye
+A shiny brown nut from tree.
+coral fungus
+A fungus that looks like coral.
+agaric
+A type of mushroom with gills.
+gyromitra
+A wrinkled mushroom that looks brain.
+stinkhorn
+A mushroom with bad smell.
+earthstar
+A star-shaped fungus that opens.
+hen-of-the-woods
+A mushroom that grows on trees.
+bolete
+A mushroom with pores instead gills.
+ear
+A fungus that looks like ear.
+toilet tissue
+Soft paper for bathroom use.

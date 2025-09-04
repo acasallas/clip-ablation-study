@@ -21,6 +21,7 @@ from transformers import PreTrainedTokenizerFast
 from clip_model import CLIP
 
 
+
 # Results were top-1 8.3% and top-5 19.6%
 
 # TODO: zero shot results were disappointing. Some things to check
@@ -35,6 +36,9 @@ Recommendation, implement this if time:
 Prompt bank (fast win): go from 2 templates to ~50–80; average the text embeddings per class (plus WordNet synonyms when available),
  then L2-norm. This alone often gives +3–10% absolute on zero-shot.
 """
+
+
+
 
 
 # ---------------- Device ----------------
@@ -94,11 +98,12 @@ def _load_tok(path: str, max_len: int):
     return fast
 
 
-def build_random_template_prompts(imagenet_classes):
+def build_random_template_prompts(imagenet_class_prompts):
     # For each class id c in [0..999], pick a random template and fill in the class name.
-    prompts = [TEMPLATES[random.randrange(len(TEMPLATES))].format(imagenet_classes[c])
-               for c in range(NUM_IMAGENET_CLASSES)]
-    return prompts
+    return imagenet_class_prompts
+    #prompts = [TEMPLATES[random.randrange(len(TEMPLATES))].format(imagenet_classes[c])
+    #           for c in range(NUM_IMAGENET_CLASSES)]
+    #return prompts
 
 
 # ---------------- Main ----------------
@@ -107,6 +112,20 @@ def main(run_name: str, checkpoint_name: str):
     url = "https://raw.githubusercontent.com/pytorch/hub/master/imagenet_classes.txt"
     imagenet_classes = [line.strip().decode() for line in urllib.request.urlopen(url)]
     assert len(imagenet_classes) == NUM_IMAGENET_CLASSES
+
+    classes = []
+    with open("imagenet_descriptions.txt") as f:
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            if i%2 == 0:
+                classes.append(lines[i].strip().lower())
+            else:
+                if line[0].lower() == "a":
+                    classes[-1] = classes[-1] + " is " + line.strip().lower()
+                else:
+                    classes[-1] = classes[-1] + " " + line.strip().lower()
+    imagenet_class_prompts = classes
+    print(imagenet_class_prompts[200:205])
 
     print(f"Example ImageNet classes: {imagenet_classes[:10]}")
     for i, c in enumerate(imagenet_classes):
@@ -155,7 +174,7 @@ def main(run_name: str, checkpoint_name: str):
         labels = torch.tensor([int(ex["cls"]) for ex in examples], dtype=torch.long)  # (B,)
 
         # Build prompts for ALL 1000 classes (class-ordered)
-        prompts = build_random_template_prompts(imagenet_classes)
+        prompts = build_random_template_prompts(imagenet_class_prompts)
 
         # Re-load tokenizer (cached fast object) & re-tokenize this batch's prompts
         tok = tok_loader(TOKENIZER_JSON_PATH, MAX_LEN)
