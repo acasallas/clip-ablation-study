@@ -100,7 +100,7 @@ def _load_tok(path: str, max_len: int):
 
 def build_random_template_prompts(imagenet_class_prompts):
     # For each class id c in [0..999], pick a random template and fill in the class name.
-    return imagenet_class_prompts
+    return [s[:30] for s in imagenet_class_prompts]
     #prompts = [TEMPLATES[random.randrange(len(TEMPLATES))].format(imagenet_classes[c])
     #           for c in range(NUM_IMAGENET_CLASSES)]
     #return prompts
@@ -175,6 +175,7 @@ def main(run_name: str, checkpoint_name: str):
 
         # Build prompts for ALL 1000 classes (class-ordered)
         prompts = build_random_template_prompts(imagenet_class_prompts)
+        print(prompts[:10])
 
         # Re-load tokenizer (cached fast object) & re-tokenize this batch's prompts
         tok = tok_loader(TOKENIZER_JSON_PATH, MAX_LEN)
